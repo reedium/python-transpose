@@ -32,7 +32,9 @@ def parse_arguments():
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
 
-    subparsers = parser.add_subparsers(help="Transpose Action", dest="action")
+    subparsers = parser.add_subparsers(
+        help="Transpose Action", dest="action", required=True
+    )
 
     restore_parser = subparsers.add_parser(
         "restore",
