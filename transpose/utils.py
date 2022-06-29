@@ -4,7 +4,6 @@ from typing import Dict
 import json
 
 from . import version
-from .exceptions import TransposeError
 
 
 def check_path(path: Path, is_symlink: bool = False) -> bool:
@@ -63,10 +62,7 @@ def move(source: Path, destination: Path) -> None:
     """
     Move a file using pathlib
     """
-    try:
-        source.rename(destination)
-    except FileExistsError:
-        raise TransposeError(f"Destination already exists: {destination}")
+    source.rename(destination)
 
 
 def remove(path: Path) -> None:
@@ -76,19 +72,11 @@ def remove(path: Path) -> None:
     if not path.is_symlink() and not path.is_file():
         return
 
-    try:
-        path.unlink()
-    except FileNotFoundError:
-        raise TransposeError(f"Could not locate file or symlink: {path}")
+    path.unlink()
 
 
 def symlink(target_path: Path, symlink_path: Path) -> None:
     """
     Symlink a file or directory
     """
-    try:
-        symlink_path.symlink_to(target_path)
-    except FileNotFoundError:
-        raise TransposeError(
-            f"Could not create symlink: {symlink_path} -> {target_path}"
-        )
+    symlink_path.symlink_to(target_path)
