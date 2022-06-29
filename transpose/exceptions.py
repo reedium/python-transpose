@@ -1,0 +1,2 @@
+class TransposeError(Exception):
+    pass

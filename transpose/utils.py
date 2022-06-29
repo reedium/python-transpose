@@ -4,6 +4,7 @@ from typing import Dict
 import json
 
 from . import version
+from .exceptions import TransposeError
 
 
 def check_path(path: Path, is_symlink: bool = False) -> bool:
@@ -61,42 +62,33 @@ def get_cache(cache_path: Path) -> Dict:
 def move(source: Path, destination: Path) -> None:
     """
     Move a file using pathlib
-
-    Args:
-        source: Path to original source of the file/directory
-        destination: Path to new destination
-
-    Returns:
-        None
     """
-    source.rename(destination)
+    try:
+        source.rename(destination)
+    except FileExistsError:
+        raise TransposeError(f"Destination already exists: {destination}")
 
 
 def remove(path: Path) -> None:
     """
     Remove a file or symlink
-
-    Does not support directories as a precaution and lack of need
-
-    Args:
-        path: Path to the file or symlink
-
-    Returns:
-        None
     """
-    if path.is_symlink() or path.is_file():
+    if not path.is_symlink() and not path.is_file():
+        return
+
+    try:
         path.unlink()
+    except FileNotFoundError:
+        raise TransposeError(f"Could not locate file or symlink: {path}")
 
 
 def symlink(target_path: Path, symlink_path: Path) -> None:
     """
-    Symlinks a file or directory
-
-    Args:
-        target_path: Path to the target that is being symlinked to
-        symlink_path: Path to the symlink
-
-    Returns:
-        None
+    Symlink a file or directory
     """
-    symlink_path.symlink_to(target_path)
+    try:
+        symlink_path.symlink_to(target_path)
+    except FileNotFoundError:
+        raise TransposeError(
+            f"Could not create symlink: {symlink_path} -> {target_path}"
+        )
