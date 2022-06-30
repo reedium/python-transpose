@@ -1,4 +1,4 @@
-from pathlib import Path, PurePath
+from pathlib import Path
 
 from .exceptions import TransposeError
 from .utils import check_path, create_cache, get_cache, move, remove, symlink
@@ -14,7 +14,7 @@ class Transpose:
         if not cache_filename:
             cache_filename = ".transpose.json"
         self.cache_filename = cache_filename
-        self.cache_path = Path(PurePath(self.target_path, cache_filename))
+        self.cache_path = Path(self.target_path).joinpath(cache_filename)
 
     def restore(self) -> None:
         """
@@ -47,7 +47,7 @@ class Transpose:
 
         move(source=self.target_path, destination=original_path)
 
-        new_cache_path = Path(PurePath(original_path, self.cache_filename))
+        new_cache_path = Path(original_path).joinpath(self.cache_filename)
         remove(new_cache_path)
 
     def store(self, name: str) -> None:
@@ -61,7 +61,7 @@ class Transpose:
             4. Move the `target_path` to `store_path/name`
             5. Create symlink `target_path` -> `store_path/name`
         """
-        new_location = Path(PurePath(self.store_path, name))
+        new_location = Path(self.store_path).joinpath(name)
 
         if not check_path(path=self.target_path):
             raise TransposeError(

@@ -1,7 +1,7 @@
 import json
 import os
 
-from pathlib import Path, PurePath
+from pathlib import Path
 
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
@@ -31,7 +31,7 @@ def setup():
             os.mkdir(STORE_DIR)
             os.symlink(TARGET_DIR, SYMLINK_DIR)
 
-            cache_path = Path(PurePath(TARGET_DIR, config.cache_filename))
+            cache_path = Path(TARGET_DIR, config.cache_filename)
             with open(str(cache_path), "w") as f:
                 json.dump(CACHE_FILE_CONTENTS, f)
             yield
@@ -45,7 +45,7 @@ def test_check_path():
     nonexisting_dir = Path("nonexistent")
     symlink_dir = Path(SYMLINK_DIR)
 
-    cache_path = Path(PurePath(TARGET_DIR, config.cache_filename))
+    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
 
     assert check_path(existing_dir) is True
     assert check_path(nonexisting_dir) is False
@@ -57,7 +57,7 @@ def test_check_path():
 def test_cache_create():
     cache_file = "test_cache_file.json"
 
-    cache_path = Path(PurePath(TARGET_DIR, cache_file))
+    cache_path = Path(TARGET_DIR).joinpath(cache_file)
     original_path = Path("/tmp/some/random/path")
 
     create_cache(cache_path=cache_path, original_path=original_path)
@@ -71,7 +71,7 @@ def test_cache_create():
 
 @setup()
 def test_cache_get():
-    cache_path = Path(PurePath(TARGET_DIR, config.cache_filename))
+    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
     cache = get_cache(cache_path)
 
     assert cache["version"] == CACHE_FILE_CONTENTS["version"]
@@ -90,8 +90,8 @@ def test_file_move():
 
 @setup()
 def test_file_remove():
-    cache_path = Path(PurePath(TARGET_DIR, config.cache_filename))
-    symlink_filepath = Path(PurePath(TARGET_DIR, SYMLINK_DIR))
+    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
+    symlink_filepath = Path(TARGET_DIR).joinpath(SYMLINK_DIR)
     target_filepath = Path(TARGET_DIR)
 
     remove(path=cache_path)
@@ -123,13 +123,13 @@ def test_transpose_init():
         store_path=STORE_DIR,
     )
     assert t.cache_filename == ".transpose.json"
-    assert t.cache_path == Path(PurePath(TARGET_DIR, ".transpose.json"))
+    assert t.cache_path == Path(TARGET_DIR).joinpath(".transpose.json")
 
     t = Transpose(
         target_path=TARGET_DIR, store_path=STORE_DIR, cache_filename=".transpose.txt"
     )
     assert t.cache_filename == ".transpose.txt"
-    assert t.cache_path == Path(PurePath(TARGET_DIR, ".transpose.txt"))
+    assert t.cache_path == Path(TARGET_DIR).joinpath(".transpose.txt")
 
 
 @setup()
@@ -141,7 +141,7 @@ def test_transpose_store_restore():
     t.store("TestStore")
 
     target_path = Path(TARGET_DIR)
-    store_path = Path(PurePath(STORE_DIR, "TestStore"))
+    store_path = Path(STORE_DIR).joinpath("TestStore")
 
     assert store_path.is_dir() and not store_path.is_symlink()
     assert target_path.is_dir() and target_path.is_symlink()
