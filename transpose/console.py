@@ -1,13 +1,26 @@
 import argparse
 import os
 
-from config import Config
+from pydantic import BaseSettings
+
 from transpose import Transpose, version
 
-config = Config()
+default_xdg_path = os.environ.get("XDG_DATA_HOME", f"{os.environ['HOME']}/.local/share")
 
 
-def main() -> None:
+class Config(BaseSettings):
+    store_path: str = f"{default_xdg_path}/transpose"
+    cache_filename: str = ".transpose.json"
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        env_nested_delimiter = "__"
+        env_prefix = "TRANSPOSE_"
+
+
+def entry_point() -> None:
+    config = Config()
     args = parse_arguments()
 
     t = Transpose(
@@ -62,4 +75,4 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
-    main()
+    entry_point()

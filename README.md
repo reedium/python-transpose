@@ -14,7 +14,13 @@ This is the current result, although it still needs a lot of work as I'm sure I'
 
 ## Installation
 
-TODO
+Can be installed via pip. For instance, from within a virtualenv:
+
+```
+python -m venv .venv
+. .venv/bin/activate
+pip install .
+```
 
 
 ## Configuration

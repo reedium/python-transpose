@@ -6,8 +6,8 @@ from pathlib import Path, PurePath
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
-from config import Config
 from transpose import Transpose, version
+from transpose.console import Config
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
 
 
