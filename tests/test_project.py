@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 from config import Config
-from transpose import version
+from transpose import Transpose, version
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
 
 
@@ -114,3 +114,45 @@ def test_file_symlink():
     assert target_filepath.exists()
     assert symlink_filepath.is_symlink()
     assert symlink_filepath.readlink() == target_filepath
+
+
+@setup()
+def test_transpose_init():
+    t = Transpose(
+        target_path=TARGET_DIR,
+        store_path=STORE_DIR,
+    )
+    assert t.cache_filename == ".transpose.json"
+    assert t.cache_path == Path(PurePath(TARGET_DIR, ".transpose.json"))
+
+    t = Transpose(
+        target_path=TARGET_DIR, store_path=STORE_DIR, cache_filename=".transpose.txt"
+    )
+    assert t.cache_filename == ".transpose.txt"
+    assert t.cache_path == Path(PurePath(TARGET_DIR, ".transpose.txt"))
+
+
+@setup()
+def test_transpose_store_restore():
+    t = Transpose(
+        target_path=TARGET_DIR,
+        store_path=STORE_DIR,
+    )
+    t.store("TestStore")
+
+    target_path = Path(TARGET_DIR)
+    store_path = Path(PurePath(STORE_DIR, "TestStore"))
+
+    assert store_path.is_dir() and not store_path.is_symlink()
+    assert target_path.is_dir() and target_path.is_symlink()
+    assert t.cache_path.is_file()
+
+    t = Transpose(
+        target_path=str(store_path),
+        store_path=STORE_DIR,
+    )
+    t.restore()
+
+    assert not store_path.exists()
+    assert target_path.is_dir() and not target_path.is_symlink()
+    assert not t.cache_path.exists()
