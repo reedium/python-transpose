@@ -1,32 +1,19 @@
 import argparse
 import os
 
-from pydantic import BaseSettings
-
-from transpose import Transpose, version
-
-default_xdg_path = os.environ.get("XDG_DATA_HOME", f"{os.environ['HOME']}/.local/share")
-
-
-class Config(BaseSettings):
-    store_path: str = f"{default_xdg_path}/transpose"
-    cache_filename: str = ".transpose.json"
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_nested_delimiter = "__"
-        env_prefix = "TRANSPOSE_"
+from transpose import Transpose, version, DEFAULT_STORE_PATH, DEFAULT_CACHE_FILENAME
 
 
 def entry_point() -> None:
-    config = Config()
+    store_path = os.environ.get("TRANSPOSE_STORE_PATH", DEFAULT_STORE_PATH)
+    cache_filename = os.environ.get("TRANSPOSE_CACHE_FILENAME", DEFAULT_CACHE_FILENAME)
+
     args = parse_arguments()
 
     t = Transpose(
         target_path=args.target_path,
-        store_path=config.store_path,
-        cache_filename=config.cache_filename,
+        store_path=store_path,
+        cache_filename=cache_filename,
     )
 
     if args.action == "restore":

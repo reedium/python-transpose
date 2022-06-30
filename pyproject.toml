@@ -6,13 +6,12 @@ authors = ["Ryan Reed"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pydantic = "*"
-python-dotenv = "*"
 
 [tool.poetry.dev-dependencies]
 black = "==22.6"
 flake8 = "==3.8.4"
 pre-commit = "*"
+python-dotenv = "*"
 pytest = "*"
 pytest-sugar = "*"
 

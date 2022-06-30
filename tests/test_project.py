@@ -6,8 +6,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
-from transpose import Transpose, version
-from transpose.console import Config
+from transpose import Transpose, version, DEFAULT_CACHE_FILENAME
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
 
 
@@ -16,8 +15,6 @@ STORE_DIR = "destination"
 SYMLINK_DIR = "symlink_test"
 
 CACHE_FILE_CONTENTS = {"version": version, "original_path": TARGET_DIR}
-
-config = Config()
 
 
 @contextmanager
@@ -31,7 +28,7 @@ def setup():
             os.mkdir(STORE_DIR)
             os.symlink(TARGET_DIR, SYMLINK_DIR)
 
-            cache_path = Path(TARGET_DIR, config.cache_filename)
+            cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
             with open(str(cache_path), "w") as f:
                 json.dump(CACHE_FILE_CONTENTS, f)
             yield
@@ -45,7 +42,7 @@ def test_check_path():
     nonexisting_dir = Path("nonexistent")
     symlink_dir = Path(SYMLINK_DIR)
 
-    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
+    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
 
     assert check_path(existing_dir) is True
     assert check_path(nonexisting_dir) is False
@@ -71,7 +68,7 @@ def test_cache_create():
 
 @setup()
 def test_cache_get():
-    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
+    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
     cache = get_cache(cache_path)
 
     assert cache["version"] == CACHE_FILE_CONTENTS["version"]
@@ -90,7 +87,7 @@ def test_file_move():
 
 @setup()
 def test_file_remove():
-    cache_path = Path(TARGET_DIR).joinpath(config.cache_filename)
+    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
     symlink_filepath = Path(TARGET_DIR).joinpath(SYMLINK_DIR)
     target_filepath = Path(TARGET_DIR)
 
