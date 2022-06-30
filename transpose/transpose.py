@@ -19,14 +19,6 @@ class Transpose:
     def restore(self) -> None:
         """
         Restores a previously Transpose managed directory to it's previous location.
-
-        Performs:
-            1. Verify `cache_file` exists
-            2. Verify `target_path` exists
-            3. Verify if `original_path` in cache is a symlink
-                a. Remove if true
-            4. Verify `original_path` doesn't exist
-            5. Move `target_path` to `original_path` based on cache file settings
         """
         if not self.cache_path.exists():
             raise TransposeError(
@@ -53,13 +45,6 @@ class Transpose:
     def store(self, name: str) -> None:
         """
         Moves a directory to a central location and creates a symlink to the old path.
-
-        Performs:
-            1. Verify `target_path` exists
-            2. Verify `store_path` exists
-            3. Create the cache file
-            4. Move the `target_path` to `store_path/name`
-            5. Create symlink `target_path` -> `store_path/name`
         """
         new_location = Path(self.store_path).joinpath(name)
 
