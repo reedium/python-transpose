@@ -11,7 +11,7 @@ from transpose.utils import check_path, create_cache, get_cache, move, remove, s
 
 
 TARGET_DIR = "source"
-STORE_DIR = "destination"
+STORE_DIR = "store"
 SYMLINK_DIR = "symlink_test"
 
 CACHE_FILE_CONTENTS = {"version": version, "original_path": TARGET_DIR}
@@ -153,3 +153,9 @@ def test_transpose_store_restore():
     assert not store_path.exists()
     assert target_path.is_dir() and not target_path.is_symlink()
     assert not t.cache_path.exists()
+
+
+@setup()
+def test_transpose_restore_force():
+    # TODO
+    pass

@@ -6,7 +6,11 @@ from .utils import check_path, create_cache, get_cache, move, remove, symlink
 
 class Transpose:
     def __init__(
-        self, target_path: str, store_path: str, cache_filename: str = None
+        self,
+        target_path: str,
+        store_path: str,
+        cache_filename: str = None,
+        force: bool = False,
     ) -> None:
         self.target_path = Path(target_path)
         self.store_path = Path(store_path)
@@ -15,6 +19,8 @@ class Transpose:
             cache_filename = ".transpose.json"
         self.cache_filename = cache_filename
         self.cache_path = Path(self.target_path).joinpath(cache_filename)
+
+        self.force = force
 
     def restore(self) -> None:
         """
@@ -35,6 +41,13 @@ class Transpose:
         elif original_path.exists():
             raise TransposeError(
                 f"Original path in cache file already exists: {original_path}"
+            )
+
+        try:
+            original_path.parent.mkdir(parents=self.force, exist_ok=True)
+        except FileNotFoundError:
+            raise TransposeError(
+                f"The parent directory for the original path, {original_path.parent} does not exist. Use '-f' to force the creation of this directory"
             )
 
         move(source=self.target_path, destination=original_path)
