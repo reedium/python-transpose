@@ -69,3 +69,14 @@ The above will (assuming all the defaults):
 
 1. Remove the symlink at `/home/user/Documents` (from cache file)
 2. Move `$XDG_DATA_HOME/transpose/My Documents` to `/home/user/Documents`
+
+
+### Applying a Previously Transpose Managed Directory
+
+This will recreate the symlink based on the cache file within the directory.
+
+This is most useful when moving the stored directory.
+
+```
+transpose apple "/home/user/.local/share/transpose/My Documents"
+```
