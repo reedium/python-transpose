@@ -3,7 +3,7 @@
 A tool for moving and symlinking directories to a central location
 
 
-## Inspiration
+## Introduction
 
 I've been using linux as my main machine for a while and wanted a central directory to backup as backing up my entire `HOME` directory was a mess. I found moving directories and symlinking worked great. I created a simple project when learning python (I called symlinker) and used it for a while but found it annoying to configure and work with.
 
