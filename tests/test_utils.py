@@ -83,4 +83,4 @@ def test_file_symlink():
 
     assert target_filepath.exists()
     assert symlink_filepath.is_symlink()
-    assert symlink_filepath.readlink() == target_filepath
+    assert symlink_filepath.readlink() == target_filepath.resolve()

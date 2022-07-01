@@ -79,4 +79,4 @@ def symlink(target_path: Path, symlink_path: Path) -> None:
     """
     Symlink a file or directory
     """
-    symlink_path.symlink_to(target_path)
+    symlink_path.symlink_to(target_path.resolve())
