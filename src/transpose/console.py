@@ -17,7 +17,9 @@ def entry_point() -> None:
         force=args.force,
     )
 
-    if args.action == "restore":
+    if args.action == "apply":
+        t.apply()
+    elif args.action == "restore":
         t.restore()
     elif args.action == "store":
         t.store(name=args.name)
@@ -41,6 +43,16 @@ def parse_arguments():
 
     subparsers = parser.add_subparsers(
         help="Transpose Action", dest="action", required=True
+    )
+
+    apply_parser = subparsers.add_parser(
+        "apply",
+        help="Recreate the symlink from the cache file (useful after moving store loction)",
+        parents=[base_parser],
+    )
+    apply_parser.add_argument(
+        "target_path",
+        help="The path to the directory to locate the cache file",
     )
 
     restore_parser = subparsers.add_parser(

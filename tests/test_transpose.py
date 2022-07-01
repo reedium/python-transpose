@@ -10,7 +10,7 @@ from .utils import STORE_DIR, TARGET_DIR, setup_env
 
 
 @setup_env()
-def test_transpose_init():
+def test_init():
     t = Transpose(
         target_path=TARGET_DIR,
         store_path=STORE_DIR,
@@ -26,7 +26,24 @@ def test_transpose_init():
 
 
 @setup_env()
-def test_transpose_store_restore():
+def test_apply():
+    store_path = Path(STORE_DIR)
+    target_path = Path(TARGET_DIR)
+    store_path.rmdir()
+    target_path.rename(store_path)
+
+    t = Transpose(
+        target_path=STORE_DIR,
+        store_path=STORE_DIR,
+    )
+    t.apply()
+
+    assert store_path.is_dir() and not store_path.is_symlink()
+    assert target_path.is_dir() and target_path.is_symlink()
+
+
+@setup_env()
+def test_store_restore():
     t = Transpose(
         target_path=TARGET_DIR,
         store_path=STORE_DIR,
@@ -52,7 +69,7 @@ def test_transpose_store_restore():
 
 
 @setup_env()
-def test_transpose_restore_force():
+def test_restore_force():
     nonexistent_path = Path(STORE_DIR).joinpath("long/path")
 
     # Overwrite cache file with nonexistent directory

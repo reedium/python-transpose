@@ -22,6 +22,23 @@ class Transpose:
 
         self.force = force
 
+    def apply(self) -> None:
+        """
+        Recreate the symlink from an existing cache file
+        """
+        if not self.cache_path.exists():
+            raise TransposeError(
+                f"Cache file does not exist indicating target is not managed by Transpose: {self.cache_path}"
+            )
+
+        cache = get_cache(self.cache_path)
+        original_path = Path(cache["original_path"])
+
+        if original_path.is_symlink():
+            remove(original_path)
+
+        symlink(target_path=self.cache_path.parent, symlink_path=original_path)
+
     def restore(self) -> None:
         """
         Restores a previously Transpose managed directory to it's previous location.
