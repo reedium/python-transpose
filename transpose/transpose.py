@@ -43,14 +43,15 @@ class Transpose:
                 f"Original path in cache file already exists: {original_path}"
             )
 
+        if not original_path.parent.exists() and self.force:
+            original_path.parent.mkdir(parents=True)
+
         try:
-            original_path.parent.mkdir(parents=self.force, exist_ok=True)
+            move(source=self.target_path, destination=original_path)
         except FileNotFoundError:
             raise TransposeError(
-                f"The parent directory for the original path, {original_path.parent} does not exist. Use '-f' to force the creation of this directory"
+                f"Original path, {original_path}, does not exist. Use '-f' to create the path"
             )
-
-        move(source=self.target_path, destination=original_path)
 
         new_cache_path = Path(original_path).joinpath(self.cache_filename)
         remove(new_cache_path)

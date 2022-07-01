@@ -1,5 +1,6 @@
 import json
 import os
+import pytest
 
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 from transpose import Transpose, version, DEFAULT_CACHE_FILENAME
+from transpose.exceptions import TransposeError
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
 
 
@@ -157,5 +159,18 @@ def test_transpose_store_restore():
 
 @setup()
 def test_transpose_restore_force():
-    # TODO
-    pass
+    nonexistent_path = Path(STORE_DIR).joinpath("long/path")
+
+    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
+    cache = {"version": version, "original_path": str(nonexistent_path)}
+    with open(str(cache_path), "w") as f:
+        json.dump(cache, f)
+
+    t = Transpose(target_path=TARGET_DIR, store_path=STORE_DIR)
+    with pytest.raises(TransposeError):
+        t.restore()
+    assert not nonexistent_path.exists()
+
+    t = Transpose(target_path=TARGET_DIR, store_path=STORE_DIR, force=True)
+    t.restore()
+    assert nonexistent_path.exists()
