@@ -20,6 +20,14 @@ pytest-sugar = "*"
 [tool.poetry.scripts]
 transpose = "transpose.console:entry_point"
 
+[tool.semantic_release]
+version_variable = "pyproject.toml:version"
+branch = "master"
+build_command = "pip install poetry && poetry build"
+dist_path = "dist/"
+upload_to_pypi = false
+remove_dist = false
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
