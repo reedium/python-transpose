@@ -62,7 +62,7 @@ Restoring a directory will:
 2. Move the stored directory to the `original_path`
 
 ```
-transpose restore "$XDG_DATA_HOME/transpose/My Documents"
+transpose restore "/home/user/.local/share/transpose/My Documents"
 ```
 
 The above will (assuming all the defaults):
