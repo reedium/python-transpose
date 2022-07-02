@@ -10,7 +10,6 @@ class Transpose:
         target_path: str,
         store_path: str,
         cache_filename: str = None,
-        force: bool = False,
     ) -> None:
         self.target_path = Path(target_path)
         self.store_path = Path(store_path)
@@ -19,8 +18,6 @@ class Transpose:
             cache_filename = ".transpose.json"
         self.cache_filename = cache_filename
         self.cache_path = Path(self.target_path).joinpath(cache_filename)
-
-        self.force = force
 
     def apply(self) -> None:
         """
@@ -59,9 +56,6 @@ class Transpose:
             raise TransposeError(
                 f"Original path in cache file already exists: {original_path}"
             )
-
-        if not original_path.parent.exists() and self.force:
-            original_path.parent.mkdir(parents=True)
 
         try:
             move(source=self.target_path, destination=original_path)
