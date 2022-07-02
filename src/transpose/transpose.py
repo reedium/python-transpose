@@ -1,4 +1,4 @@
-from pathlib import Path
+import pathlib
 
 from .exceptions import TransposeError
 from .utils import check_path, create_cache, get_cache, move, remove, symlink
@@ -11,13 +11,13 @@ class Transpose:
         store_path: str,
         cache_filename: str = None,
     ) -> None:
-        self.target_path = Path(target_path)
-        self.store_path = Path(store_path)
+        self.target_path = pathlib.Path(target_path)
+        self.store_path = pathlib.Path(store_path)
 
         if not cache_filename:
             cache_filename = ".transpose.json"
         self.cache_filename = cache_filename
-        self.cache_path = Path(self.target_path).joinpath(cache_filename)
+        self.cache_path = pathlib.Path(self.target_path).joinpath(cache_filename)
 
     def apply(self) -> None:
         """
@@ -29,7 +29,7 @@ class Transpose:
             )
 
         cache = get_cache(self.cache_path)
-        original_path = Path(cache["original_path"])
+        original_path = pathlib.Path(cache["original_path"])
 
         if original_path.is_symlink():
             remove(original_path)
@@ -48,7 +48,7 @@ class Transpose:
             raise TransposeError(f"Target path does not exist: {self.target_path}")
 
         cache = get_cache(self.cache_path)
-        original_path = Path(cache["original_path"])
+        original_path = pathlib.Path(cache["original_path"])
 
         if original_path.is_symlink():
             remove(original_path)
@@ -64,14 +64,14 @@ class Transpose:
                 f"Original path, {original_path}, does not exist. Use '-f' to create the path"
             )
 
-        new_cache_path = Path(original_path).joinpath(self.cache_filename)
+        new_cache_path = pathlib.Path(original_path).joinpath(self.cache_filename)
         remove(new_cache_path)
 
     def store(self, name: str) -> None:
         """
         Moves a directory to a central location and creates a symlink to the old path.
         """
-        new_location = Path(self.store_path).joinpath(name)
+        new_location = pathlib.Path(self.store_path).joinpath(name)
 
         if not check_path(path=self.target_path):
             raise TransposeError(

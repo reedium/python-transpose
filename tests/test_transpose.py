@@ -1,7 +1,6 @@
 import json
+import pathlib
 import pytest
-
-from pathlib import Path
 
 from transpose import Transpose, version, DEFAULT_CACHE_FILENAME
 from transpose.exceptions import TransposeError
@@ -16,19 +15,19 @@ def test_init():
         store_path=STORE_DIR,
     )
     assert t.cache_filename == ".transpose.json"
-    assert t.cache_path == Path(TARGET_DIR).joinpath(".transpose.json")
+    assert t.cache_path == pathlib.Path(TARGET_DIR).joinpath(".transpose.json")
 
     t = Transpose(
         target_path=TARGET_DIR, store_path=STORE_DIR, cache_filename=".transpose.txt"
     )
     assert t.cache_filename == ".transpose.txt"
-    assert t.cache_path == Path(TARGET_DIR).joinpath(".transpose.txt")
+    assert t.cache_path == pathlib.Path(TARGET_DIR).joinpath(".transpose.txt")
 
 
 @setup_env()
 def test_apply():
-    store_path = Path(STORE_DIR)
-    target_path = Path(TARGET_DIR)
+    store_path = pathlib.Path(STORE_DIR)
+    target_path = pathlib.Path(TARGET_DIR)
     store_path.rmdir()
     target_path.rename(store_path)
 
@@ -50,8 +49,8 @@ def test_store_restore():
     )
     t.store("TestStore")
 
-    target_path = Path(TARGET_DIR)
-    store_path = Path(STORE_DIR).joinpath("TestStore")
+    target_path = pathlib.Path(TARGET_DIR)
+    store_path = pathlib.Path(STORE_DIR).joinpath("TestStore")
 
     assert store_path.is_dir() and not store_path.is_symlink()
     assert target_path.is_dir() and target_path.is_symlink()

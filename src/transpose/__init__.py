@@ -1,5 +1,6 @@
-from importlib.metadata import version
 import os
+
+from importlib.metadata import version
 
 from .logger import create_logger
 

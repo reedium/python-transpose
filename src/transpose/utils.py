@@ -1,8 +1,8 @@
-from pathlib import Path
-from typing import Dict
-
 import json
 import shutil
+
+from pathlib import Path
+from typing import Dict
 
 from . import version
 
