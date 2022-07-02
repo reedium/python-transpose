@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Dict
 
 import json
+import shutil
 
 from . import version
 
@@ -62,7 +63,7 @@ def move(source: Path, destination: Path) -> None:
     """
     Move a file using pathlib
     """
-    source.rename(destination)
+    shutil.move(source, destination)
 
 
 def remove(path: Path) -> None:

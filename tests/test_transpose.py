@@ -66,25 +66,3 @@ def test_store_restore():
     assert not store_path.exists()
     assert target_path.is_dir() and not target_path.is_symlink()
     assert not t.cache_path.exists()
-
-
-@setup_env()
-def test_restore_force():
-    nonexistent_path = Path(STORE_DIR).joinpath("long/path")
-
-    # Overwrite cache file with nonexistent directory
-    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
-    cache = {"version": version, "original_path": str(nonexistent_path)}
-    with open(str(cache_path), "w") as f:
-        json.dump(cache, f)
-
-    # Force not enabled, should raise exception
-    t = Transpose(target_path=TARGET_DIR, store_path=STORE_DIR)
-    with pytest.raises(TransposeError):
-        t.restore()
-    assert not nonexistent_path.exists()
-
-    # Force enabled, should create directory tree
-    t = Transpose(target_path=TARGET_DIR, store_path=STORE_DIR, force=True)
-    t.restore()
-    assert nonexistent_path.exists()

@@ -14,7 +14,6 @@ def entry_point() -> None:
         target_path=args.target_path,
         store_path=store_path,
         cache_filename=cache_filename,
-        force=args.force,
     )
 
     if args.action == "apply":
@@ -32,12 +31,6 @@ def parse_arguments():
         description="""
         Move and symlink a path for easier management
         """,
-    )
-    parser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        help="Force directory moves. For instance, create the store path if it does not exist",
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
 
