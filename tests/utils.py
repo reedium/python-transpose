@@ -1,8 +1,8 @@
 import os
 import json
+import pathlib
 
 from contextlib import contextmanager
-from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from transpose import DEFAULT_CACHE_FILENAME, version
@@ -27,7 +27,7 @@ def setup_env():
             os.mkdir(STORE_DIR)
             os.symlink(TARGET_DIR, SYMLINK_DIR)
 
-            cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
+            cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
             with open(str(cache_path), "w") as f:
                 json.dump(CACHE_FILE_CONTENTS, f)
             yield

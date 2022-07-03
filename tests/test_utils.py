@@ -1,6 +1,5 @@
 import json
-
-from pathlib import Path
+import pathlib
 
 from transpose import version, DEFAULT_CACHE_FILENAME
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
@@ -11,11 +10,11 @@ from .utils import CACHE_FILE_CONTENTS, STORE_DIR, SYMLINK_DIR, TARGET_DIR, setu
 
 @setup_env()
 def test_check_path():
-    existing_dir = Path(TARGET_DIR)
-    nonexisting_dir = Path("nonexistent")
-    symlink_dir = Path(SYMLINK_DIR)
+    existing_dir = pathlib.Path(TARGET_DIR)
+    nonexisting_dir = pathlib.Path("nonexistent")
+    symlink_dir = pathlib.Path(SYMLINK_DIR)
 
-    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
+    cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
 
     assert check_path(existing_dir) is True
     assert check_path(nonexisting_dir) is False
@@ -27,8 +26,8 @@ def test_check_path():
 def test_cache_create():
     cache_file = "test_cache_file.json"
 
-    cache_path = Path(TARGET_DIR).joinpath(cache_file)
-    original_path = Path("/tmp/some/random/path")
+    cache_path = pathlib.Path(TARGET_DIR).joinpath(cache_file)
+    original_path = pathlib.Path("/tmp/some/random/path")
 
     create_cache(cache_path=cache_path, original_path=original_path)
 
@@ -41,7 +40,7 @@ def test_cache_create():
 
 @setup_env()
 def test_cache_get():
-    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
+    cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
     cache = get_cache(cache_path)
 
     assert cache["version"] == CACHE_FILE_CONTENTS["version"]
@@ -50,8 +49,8 @@ def test_cache_get():
 
 @setup_env()
 def test_file_move():
-    source_path = Path(TARGET_DIR)
-    destination_path = Path(STORE_DIR)
+    source_path = pathlib.Path(TARGET_DIR)
+    destination_path = pathlib.Path(STORE_DIR)
 
     move(source=source_path.absolute(), destination=destination_path.absolute())
     assert not source_path.exists()
@@ -60,9 +59,9 @@ def test_file_move():
 
 @setup_env()
 def test_file_remove():
-    cache_path = Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
-    symlink_filepath = Path(TARGET_DIR).joinpath(SYMLINK_DIR)
-    target_filepath = Path(TARGET_DIR)
+    cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
+    symlink_filepath = pathlib.Path(TARGET_DIR).joinpath(SYMLINK_DIR)
+    target_filepath = pathlib.Path(TARGET_DIR)
 
     remove(path=cache_path)
     remove(path=symlink_filepath)
@@ -76,8 +75,8 @@ def test_file_remove():
 @setup_env()
 def test_file_symlink():
     symlink_name = "test_link"
-    symlink_filepath = Path(symlink_name)
-    target_filepath = Path(TARGET_DIR)
+    symlink_filepath = pathlib.Path(symlink_name)
+    target_filepath = pathlib.Path(TARGET_DIR)
 
     symlink(target_path=target_filepath, symlink_path=symlink_filepath)
 
