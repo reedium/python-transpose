@@ -24,7 +24,7 @@ def entry_point() -> None:
         t.store(name=args.name)
 
 
-def parse_arguments():
+def parse_arguments(args=None):
     base_parser = argparse.ArgumentParser(add_help=False)
     parser = argparse.ArgumentParser(
         parents=[base_parser],
@@ -70,7 +70,7 @@ def parse_arguments():
         help="The path to the directory to be stored",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 if __name__ == "__main__":
