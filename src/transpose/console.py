@@ -5,15 +5,12 @@ from transpose import Transpose, version, DEFAULT_STORE_PATH, DEFAULT_CACHE_FILE
 
 
 def entry_point() -> None:
-    store_path = os.environ.get("TRANSPOSE_STORE_PATH", DEFAULT_STORE_PATH)
-    cache_filename = os.environ.get("TRANSPOSE_CACHE_FILENAME", DEFAULT_CACHE_FILENAME)
-
     args = parse_arguments()
 
     t = Transpose(
         target_path=args.target_path,
-        store_path=store_path,
-        cache_filename=cache_filename,
+        store_path=args.store_path,
+        cache_filename=args.cache_filename,
     )
 
     if args.action == "apply":
@@ -25,7 +22,27 @@ def entry_point() -> None:
 
 
 def parse_arguments(args=None):
+    cache_filename = os.environ.get("TRANSPOSE_CACHE_FILENAME", DEFAULT_CACHE_FILENAME)
+    store_path = os.environ.get("TRANSPOSE_STORE_PATH", DEFAULT_STORE_PATH)
+
     base_parser = argparse.ArgumentParser(add_help=False)
+    base_parser.add_argument(
+        "--cache-filename",
+        dest="cache_filename",
+        nargs="?",
+        default=cache_filename,
+        help="The name of the cache file added to the target directory (default: %(default)s)",
+    )
+
+    store_restore_parser = argparse.ArgumentParser(add_help=False)
+    store_restore_parser.add_argument(
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=store_path,
+        help="The path to where the target should be stored (default: %(default)s)",
+    )
+
     parser = argparse.ArgumentParser(
         parents=[base_parser],
         description="""
@@ -51,7 +68,7 @@ def parse_arguments(args=None):
     restore_parser = subparsers.add_parser(
         "restore",
         help="Move a transposed directory back to it's original location",
-        parents=[base_parser],
+        parents=[base_parser, store_restore_parser],
     )
     restore_parser.add_argument(
         "target_path",
@@ -59,7 +76,9 @@ def parse_arguments(args=None):
     )
 
     store_parser = subparsers.add_parser(
-        "store", help="Move target and create symlink in place", parents=[base_parser]
+        "store",
+        help="Move target and create symlink in place",
+        parents=[base_parser, store_restore_parser],
     )
     store_parser.add_argument(
         "name",
@@ -67,7 +86,7 @@ def parse_arguments(args=None):
     )
     store_parser.add_argument(
         "target_path",
-        help="The path to the directory to be stored",
+        help="The path to the directory that should be moved to storage",
     )
 
     return parser.parse_args(args)

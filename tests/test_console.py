@@ -8,6 +8,20 @@ def test_parse_arguments():
     with pytest.raises(SystemExit):
         parse_arguments()
 
+    args = parse_arguments(
+        [
+            "store",
+            "--cache-filename",
+            "test-cache-file.json",
+            "--store-path",
+            "/mnt/store",
+            "MyTarget",
+            "/tmp/some/path",
+        ]
+    )
+    assert args.cache_filename == "test-cache-file.json"
+    assert args.store_path == "/mnt/store"
+
 
 def test_parse_arguments_apply():
     # Missing required argument - target_path (Apply)
