@@ -34,15 +34,6 @@ def parse_arguments(args=None):
         help="The name of the cache file added to the target directory (default: %(default)s)",
     )
 
-    store_restore_parser = argparse.ArgumentParser(add_help=False)
-    store_restore_parser.add_argument(
-        "--store-path",
-        dest="store_path",
-        nargs="?",
-        default=store_path,
-        help="The path to where the target should be stored (default: %(default)s)",
-    )
-
     parser = argparse.ArgumentParser(
         parents=[base_parser],
         description="""
@@ -67,8 +58,8 @@ def parse_arguments(args=None):
 
     restore_parser = subparsers.add_parser(
         "restore",
-        help="Move a transposed directory back to it's original location",
-        parents=[base_parser, store_restore_parser],
+        help="Move a transposed directory back to it's original location, based on the cachefile",
+        parents=[base_parser],
     )
     restore_parser.add_argument(
         "target_path",
@@ -78,7 +69,7 @@ def parse_arguments(args=None):
     store_parser = subparsers.add_parser(
         "store",
         help="Move target and create symlink in place",
-        parents=[base_parser, store_restore_parser],
+        parents=[base_parser],
     )
     store_parser.add_argument(
         "name",
@@ -87,6 +78,13 @@ def parse_arguments(args=None):
     store_parser.add_argument(
         "target_path",
         help="The path to the directory that should be moved to storage",
+    )
+    store_parser.add_argument(
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=store_path,
+        help="The path to where the target should be stored (default: %(default)s)",
     )
 
     return parser.parse_args(args)
