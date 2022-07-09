@@ -5,10 +5,10 @@ from transpose import version, DEFAULT_CACHE_FILENAME
 from transpose.utils import check_path, create_cache, get_cache, move, remove, symlink
 
 
-from .utils import CACHE_FILE_CONTENTS, STORE_DIR, SYMLINK_DIR, TARGET_DIR, setup_env
+from .utils import CACHE_FILE_CONTENTS, STORE_DIR, SYMLINK_DIR, TARGET_DIR, setup_store
 
 
-@setup_env()
+@setup_store()
 def test_check_path():
     existing_dir = pathlib.Path(TARGET_DIR)
     nonexisting_dir = pathlib.Path("nonexistent")
@@ -19,10 +19,12 @@ def test_check_path():
     assert check_path(existing_dir) is True
     assert check_path(nonexisting_dir) is False
     assert check_path(symlink_dir, is_symlink=True) is True
+    assert check_path(symlink_dir) is False
+    assert check_path(existing_dir, is_symlink=True) is False
     assert check_path(cache_path) is False
 
 
-@setup_env()
+@setup_store()
 def test_cache_create():
     cache_file = "test_cache_file.json"
 
@@ -38,7 +40,7 @@ def test_cache_create():
     assert cache["version"] == version
 
 
-@setup_env()
+@setup_store()
 def test_cache_get():
     cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
     cache = get_cache(cache_path)
@@ -47,7 +49,7 @@ def test_cache_get():
     assert cache["original_path"] == CACHE_FILE_CONTENTS["original_path"]
 
 
-@setup_env()
+@setup_store()
 def test_file_move():
     source_path = pathlib.Path(TARGET_DIR)
     destination_path = pathlib.Path(STORE_DIR)
@@ -57,7 +59,7 @@ def test_file_move():
     assert destination_path.exists()
 
 
-@setup_env()
+@setup_store()
 def test_file_remove():
     cache_path = pathlib.Path(TARGET_DIR).joinpath(DEFAULT_CACHE_FILENAME)
     symlink_filepath = pathlib.Path(TARGET_DIR).joinpath(SYMLINK_DIR)
@@ -72,7 +74,7 @@ def test_file_remove():
     assert target_filepath.exists()  # Should not be able to remove directories
 
 
-@setup_env()
+@setup_store()
 def test_file_symlink():
     symlink_name = "test_link"
     symlink_filepath = pathlib.Path(symlink_name)

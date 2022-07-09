@@ -13,9 +13,10 @@ python = "^3.7"
 black = "==22.6"
 flake8 = "==3.8.4"
 pre-commit = "*"
-python-dotenv = "*"
 pytest = "*"
+pytest-cov = "*"
 pytest-sugar = "*"
+python-dotenv = "*"
 
 [tool.poetry.scripts]
 transpose = "transpose.console:entry_point"
