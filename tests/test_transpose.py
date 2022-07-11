@@ -15,7 +15,6 @@ from .utils import (
 )
 
 
-@setup_store()
 def test_init():
     t = Transpose(
         target_path=TARGET_DIR,
