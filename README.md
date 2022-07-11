@@ -11,6 +11,9 @@ I recently found I could use a tool like this for a SteamDeck and decided to sta
 
 This is the current result, although it still needs a lot of work as I'm sure I'm not doing things particularly well.
 
+Additionally, the name `transpose` was sort of chosen at random and has no particular meaning currently. I'd like to change it in the future but haven't really come up with any suitable replacement.
+
+
 
 ## Installation
 
