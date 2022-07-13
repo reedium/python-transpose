@@ -24,7 +24,7 @@ def test_parse_arguments():
 
 
 def test_parse_arguments_apply():
-    # Missing required argument - target_path (Apply)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["apply"])
 
@@ -49,11 +49,11 @@ def test_parse_arguments_create():
 
 
 def test_parse_arguments_store():
-    # Missing required argument - name (Store)
+    # Missing required argument - name
     with pytest.raises(SystemExit):
         args = parse_arguments(["store"])
 
-    # Missing required argument - target_path (Store)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["store", "My Name"])
 
@@ -64,7 +64,7 @@ def test_parse_arguments_store():
 
 
 def test_parse_arguments_restore():
-    # Missing required argument - target_path (Restore)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["restore"])
 
