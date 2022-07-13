@@ -41,6 +41,13 @@ def parse_arguments(args=None):
         """,
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
+    parser.add_argument(
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=store_path,
+        help="The path to where the targets should be stored (default: %(default)s)",
+    )
 
     subparsers = parser.add_subparsers(
         help="Transpose Action", dest="action", required=True
@@ -78,13 +85,6 @@ def parse_arguments(args=None):
     store_parser.add_argument(
         "target_path",
         help="The path to the directory that should be moved to storage",
-    )
-    store_parser.add_argument(
-        "--store-path",
-        dest="store_path",
-        nargs="?",
-        default=store_path,
-        help="The path to where the target should be stored (default: %(default)s)",
     )
 
     return parser.parse_args(args)

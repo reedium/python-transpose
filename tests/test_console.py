@@ -10,11 +10,11 @@ def test_parse_arguments():
 
     args = parse_arguments(
         [
+            "--store-path",
+            "/mnt/store",
             "store",
             "--cache-filename",
             "test-cache-file.json",
-            "--store-path",
-            "/mnt/store",
             "MyTarget",
             "/tmp/some/path",
         ]
