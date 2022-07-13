@@ -42,7 +42,7 @@ class Transpose:
 
         This is useful if a path is already stored somewhere else but the cache file is missing
 
-        Ideally, the target should a symlink or not exist so a restore or apply can function
+        Ideally, the target should be a symlink or not exist so a restore or apply can function
         """
         stored_path = pathlib.Path(stored_path)
         if not stored_path.exists():
