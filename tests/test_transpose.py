@@ -60,6 +60,35 @@ def test_apply():
     assert target_path.is_dir() and target_path.is_symlink()
 
 
+@setup_restore()
+def test_create():
+    target_path = pathlib.Path(TARGET_DIR)
+    stored_path = pathlib.Path(STORE_DIR).joinpath(STORED_DIR)
+
+    t = Transpose(
+        target_path=str(target_path),
+        store_path=str(stored_path),
+    )
+
+    # Missing stored path
+    stored_path.rename("tmp")
+    with pytest.raises(TransposeError):
+        t.create(stored_path=stored_path)
+    pathlib.Path("tmp").rename(stored_path)
+
+    cache_path = stored_path.joinpath(t.cache_filename)
+
+    # Successful Create
+    t.create(stored_path=stored_path)
+    assert t.cache_path == cache_path
+    assert cache_path.exists()
+
+    with open(t.cache_path, "r") as f:
+        cache = json.load(f)
+
+    assert cache["original_path"] == str(target_path.absolute())
+
+
 @setup_store()
 def test_store():
     t = Transpose(

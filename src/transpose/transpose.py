@@ -36,6 +36,25 @@ class Transpose:
 
         symlink(target_path=self.cache_path.parent, symlink_path=original_path)
 
+    def create(self, stored_path: str) -> None:
+        """
+        Create the cache file from the target directory and stored directory
+
+        This is useful if a path is already stored somewhere else but the cache file is missing
+
+        Ideally, the target should be a symlink or not exist so a restore or apply can function
+        """
+        stored_path = pathlib.Path(stored_path)
+        if not stored_path.exists():
+            raise TransposeError("Stored path does ")
+
+        self.cache_path = stored_path.joinpath(self.cache_filename)
+
+        create_cache(
+            cache_path=self.cache_path,
+            original_path=self.target_path,
+        )
+
     def restore(self) -> None:
         """
         Restores a previously Transpose managed directory to it's previous location.

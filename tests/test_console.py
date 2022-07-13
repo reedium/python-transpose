@@ -10,11 +10,11 @@ def test_parse_arguments():
 
     args = parse_arguments(
         [
+            "--store-path",
+            "/mnt/store",
             "store",
             "--cache-filename",
             "test-cache-file.json",
-            "--store-path",
-            "/mnt/store",
             "MyTarget",
             "/tmp/some/path",
         ]
@@ -24,7 +24,7 @@ def test_parse_arguments():
 
 
 def test_parse_arguments_apply():
-    # Missing required argument - target_path (Apply)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["apply"])
 
@@ -33,12 +33,27 @@ def test_parse_arguments_apply():
     assert args.target_path == "/tmp/some/path"
 
 
+def test_parse_arguments_create():
+    # Missing required argument - target_path store_path
+    with pytest.raises(SystemExit):
+        args = parse_arguments(["create"])
+
+    # Missing required argument - stored_path
+    with pytest.raises(SystemExit):
+        args = parse_arguments(["create", "/tmp/target_path"])
+
+    args = parse_arguments(["create", "/tmp/target_path", "/tmp/stored_path"])
+    assert args.action == "create"
+    assert args.target_path == "/tmp/target_path"
+    assert args.stored_path == "/tmp/stored_path"
+
+
 def test_parse_arguments_store():
-    # Missing required argument - name (Store)
+    # Missing required argument - name
     with pytest.raises(SystemExit):
         args = parse_arguments(["store"])
 
-    # Missing required argument - target_path (Store)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["store", "My Name"])
 
@@ -49,7 +64,7 @@ def test_parse_arguments_store():
 
 
 def test_parse_arguments_restore():
-    # Missing required argument - target_path (Restore)
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["restore"])
 

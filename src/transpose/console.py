@@ -15,6 +15,8 @@ def entry_point() -> None:
 
     if args.action == "apply":
         t.apply()
+    elif args.action == "create":
+        t.create(stored_path=args.stored_path)
     elif args.action == "restore":
         t.restore()
     elif args.action == "store":
@@ -41,6 +43,13 @@ def parse_arguments(args=None):
         """,
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
+    parser.add_argument(
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=store_path,
+        help="The path to where the targets should be stored (default: %(default)s)",
+    )
 
     subparsers = parser.add_subparsers(
         help="Transpose Action", dest="action", required=True
@@ -54,6 +63,20 @@ def parse_arguments(args=None):
     apply_parser.add_argument(
         "target_path",
         help="The path to the directory to locate the cache file",
+    )
+
+    create_parser = subparsers.add_parser(
+        "create",
+        help="Create the cache file from an already stored path. Only creates the cache file.",
+        parents=[base_parser],
+    )
+    create_parser.add_argument(
+        "target_path",
+        help="The path to the directory that should by a symlink",
+    )
+    create_parser.add_argument(
+        "stored_path",
+        help="The path that is currently stored (the target of the symlink)",
     )
 
     restore_parser = subparsers.add_parser(
@@ -78,13 +101,6 @@ def parse_arguments(args=None):
     store_parser.add_argument(
         "target_path",
         help="The path to the directory that should be moved to storage",
-    )
-    store_parser.add_argument(
-        "--store-path",
-        dest="store_path",
-        nargs="?",
-        default=store_path,
-        help="The path to where the target should be stored (default: %(default)s)",
     )
 
     return parser.parse_args(args)
