@@ -46,7 +46,7 @@ class Transpose:
         """
         stored_path = pathlib.Path(stored_path)
         if not stored_path.exists():
-            raise TransposeError("Stored path does ")
+            raise TransposeError(f"Stored path does not exist: {stored_path}")
 
         self.cache_path = stored_path.joinpath(self.cache_filename)
 
