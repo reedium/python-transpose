@@ -41,7 +41,11 @@ def create_cache(cache_path: Path, original_path: Path) -> None:
     Returns:
         None
     """
-    template = {"version": version, "original_path": str(original_path.absolute())}
+    template = {
+        "version": version,
+        "original_path": str(original_path.absolute()).replace(str(Path.home()), "~"),
+    }
+
     with open(str(cache_path), "w") as f:
         json.dump(template, f)
 
