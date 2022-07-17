@@ -29,7 +29,7 @@ class Transpose:
             )
 
         cache = get_cache(self.cache_path)
-        original_path = pathlib.Path(cache["original_path"])
+        original_path = pathlib.Path(cache["original_path"]).expanduser()
 
         if original_path.is_symlink():
             remove(original_path)
@@ -67,7 +67,7 @@ class Transpose:
             raise TransposeError(f"Target path does not exist: {self.target_path}")
 
         cache = get_cache(self.cache_path)
-        original_path = pathlib.Path(cache["original_path"])
+        original_path = pathlib.Path(cache["original_path"]).expanduser()
 
         if original_path.is_symlink():
             remove(original_path)
