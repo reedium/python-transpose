@@ -3,6 +3,21 @@
 A tool for moving and symlinking directories to a central location
 
 
+## Table of Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [Introduction](#introduction)
+* [Installation](#installation)
+* [Configuration](#configuration)
+* [Usage](#usage)
+    * [Storing a Directory](#storing-a-directory)
+    * [Restoring a Stored Directory](#restoring-a-stored-directory)
+    * [Applying a Previously Transpose Managed Directory](#applying-a-previously-transpose-managed-directory)
+
+<!-- vim-markdown-toc -->
+
+
 ## Introduction
 
 I've been using linux as my main machine for a while and wanted a central directory to backup as backing up my entire `HOME` directory was a mess. I found moving directories and symlinking worked great. I created a simple project when learning python (I called symlinker) and used it for a while but found it annoying to configure and work with.
@@ -47,7 +62,7 @@ Storing a directory will:
 3. Create a cache file at `$STORE_PATH/{name}/.transpose.json` to store the original target path
 
 ```
-transpose store "My Documents" /home/user/Documents
+transpose store /home/user/Documents "My Documents"
 ```
 
 The above will (assuming using all the defaults):
@@ -55,9 +70,11 @@ The above will (assuming using all the defaults):
 1. Move `/home/user/Documents` to `$XDG_DATA_HOME/transpose/My Documents`
 2. Symlink `/home/user/Documents` to `$XDG_DATA_HOME/transpose/My Documents`
 
+Note: The name on the end (`My Documents` above), can be ommitted. The stored name will use the target name (e.g. `Documents` above)
 
 
-### Restoring a Store Directory
+
+### Restoring a Stored Directory
 
 Restoring a directory will:
 

@@ -49,15 +49,14 @@ def test_parse_arguments_create():
 
 
 def test_parse_arguments_store():
-    # Missing required argument - name
+    # Missing required argument - target_path
     with pytest.raises(SystemExit):
         args = parse_arguments(["store"])
 
-    # Missing required argument - target_path
-    with pytest.raises(SystemExit):
-        args = parse_arguments(["store", "My Name"])
+    args = parse_arguments(["store", "/tmp/some/path"])
+    assert args.name is None
 
-    args = parse_arguments(["store", "My Name", "/tmp/some/path"])
+    args = parse_arguments(["store", "/tmp/some/path", "My Name"])
     assert args.action == "store"
     assert args.name == "My Name"
     assert args.target_path == "/tmp/some/path"

@@ -86,10 +86,13 @@ class Transpose:
         new_cache_path = pathlib.Path(original_path).joinpath(self.cache_filename)
         remove(new_cache_path)
 
-    def store(self, name: str) -> None:
+    def store(self, name: str = None) -> None:
         """
         Moves a directory to a central location and creates a symlink to the old path.
         """
+        if name is None:
+            name = self.target_path.name
+
         new_location = pathlib.Path(self.store_path).joinpath(name)
 
         if not check_path(path=self.target_path):
