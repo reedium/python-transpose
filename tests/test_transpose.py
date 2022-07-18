@@ -95,12 +95,29 @@ def test_store():
         target_path=TARGET_DIR,
         store_path=STORE_DIR,
     )
+    t.store()
+
+    target_path = pathlib.Path(TARGET_DIR)
+    store_path = pathlib.Path(STORE_DIR).joinpath(target_path.name)
+
+    # Successful Store
+    assert store_path.is_dir() and not store_path.is_symlink()
+    assert target_path.is_dir() and target_path.is_symlink()
+    assert t.cache_path.is_file()
+
+
+@setup_store()
+def test_store_named():
+    t = Transpose(
+        target_path=TARGET_DIR,
+        store_path=STORE_DIR,
+    )
     t.store("TestStore")
 
     target_path = pathlib.Path(TARGET_DIR)
     store_path = pathlib.Path(STORE_DIR).joinpath("TestStore")
 
-    ## Successful Store
+    # Successful Store
     assert store_path.is_dir() and not store_path.is_symlink()
     assert target_path.is_dir() and target_path.is_symlink()
     assert t.cache_path.is_file()

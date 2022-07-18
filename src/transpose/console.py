@@ -95,12 +95,14 @@ def parse_arguments(args=None):
         parents=[base_parser],
     )
     store_parser.add_argument(
-        "name",
-        help="The name of the directory that will be created in the store path",
-    )
-    store_parser.add_argument(
         "target_path",
         help="The path to the directory that should be moved to storage",
+    )
+    store_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="The name of the directory that will be created in the store path (default: target_path)",
     )
 
     return parser.parse_args(args)
