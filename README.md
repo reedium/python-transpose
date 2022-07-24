@@ -9,7 +9,7 @@ A tool for moving and symlinking directories to a central location
 
 * [Introduction](#introduction)
 * [Installation](#installation)
-* [Configuration](#configuration)
+* [Quick Reference](#quick-reference)
 * [Usage](#usage)
     * [Storing a Directory](#storing-a-directory)
     * [Restoring a Stored Directory](#restoring-a-stored-directory)
@@ -41,13 +41,16 @@ pip install .
 ```
 
 
-## Configuration
-
-There are a few environment variables that can be defined to override defaults
+## Quick Reference
 
 ```
-TRANSPOSE_STORE_PATH="$XDG_DATA_HOME/transpose"
-TRANSPOSE_CACHE_FILENAME=".transpose.json"
+transpose store   ~/.config/zsh                 # Move ~/.config/zsh -> ~/.local/share/transpose/zsh, create symlink, create cache
+transpose restore ~/.local/share/transpose/zsh  # Remove symlink, move ~/.local/share/transpose/zsh -> ~/.config/zsh, remove cache
+transpose apply   ~/.local/share/transpose/zsh  # Recreate symlink in cache location
+transpose create  ~/.config/zsh ~/.local/share/transpose/zsh  # Recreate cache file
+
+transpose -s /mnt/backups store ~/.config/zsh zsh_config   # Move ~/.config/zsh -> /mnt/backups/zsh_config, create symlink, create cache
+transpose --cache-filename .mycache.json restore /mnt/backups/zsh_config  # Use /mnt/backup/.zsh_config.json for restoring a stored directory
 ```
 
 
