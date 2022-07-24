@@ -44,6 +44,7 @@ def parse_arguments(args=None):
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
     parser.add_argument(
+        "-s",
         "--store-path",
         dest="store_path",
         nargs="?",
