@@ -16,16 +16,11 @@ from .utils import (
 
 
 def test_init():
-    t = Transpose(
-        target_path=TARGET_DIR,
-        store_path=STORE_DIR,
-    )
+    t = Transpose(target_path=TARGET_DIR)
     assert t.cache_filename == ".transpose.json"
     assert t.cache_path == pathlib.Path(TARGET_DIR).joinpath(".transpose.json")
 
-    t = Transpose(
-        target_path=TARGET_DIR, store_path=STORE_DIR, cache_filename=".transpose.txt"
-    )
+    t = Transpose(target_path=TARGET_DIR, cache_filename=".transpose.txt")
     assert t.cache_filename == ".transpose.txt"
     assert t.cache_path == pathlib.Path(TARGET_DIR).joinpath(".transpose.txt")
 
@@ -35,10 +30,7 @@ def test_apply():
     store_path = pathlib.Path(STORE_DIR)
     target_path = pathlib.Path(TARGET_DIR)
 
-    t = Transpose(
-        target_path=STORE_DIR,
-        store_path=STORE_DIR,
-    )
+    t = Transpose(target_path=STORE_DIR)
 
     with open(t.cache_path, "r") as f:
         cache = json.load(f)
@@ -65,10 +57,7 @@ def test_create():
     target_path = pathlib.Path(TARGET_DIR)
     stored_path = pathlib.Path(STORE_DIR).joinpath(STORED_DIR)
 
-    t = Transpose(
-        target_path=str(target_path),
-        store_path=str(stored_path),
-    )
+    t = Transpose(target_path=str(target_path))
 
     # Missing stored path
     stored_path.rename("tmp")
@@ -91,11 +80,8 @@ def test_create():
 
 @setup_store()
 def test_store():
-    t = Transpose(
-        target_path=TARGET_DIR,
-        store_path=STORE_DIR,
-    )
-    t.store()
+    t = Transpose(target_path=TARGET_DIR)
+    t.store(store_path=STORE_DIR)
 
     target_path = pathlib.Path(TARGET_DIR)
     store_path = pathlib.Path(STORE_DIR).joinpath(target_path.name)
@@ -108,11 +94,8 @@ def test_store():
 
 @setup_store()
 def test_store_named():
-    t = Transpose(
-        target_path=TARGET_DIR,
-        store_path=STORE_DIR,
-    )
-    t.store("TestStore")
+    t = Transpose(target_path=TARGET_DIR)
+    t.store(store_path=STORE_DIR, name="TestStore")
 
     target_path = pathlib.Path(TARGET_DIR)
     store_path = pathlib.Path(STORE_DIR).joinpath("TestStore")
@@ -128,10 +111,7 @@ def test_restore():
     target_path = pathlib.Path(TARGET_DIR)
     stored_path = pathlib.Path(STORE_DIR).joinpath(STORED_DIR)
 
-    t = Transpose(
-        target_path=str(stored_path),
-        store_path=STORE_DIR,
-    )
+    t = Transpose(target_path=str(stored_path))
 
     # Missing Cache File
     cache = t.cache_path.read_text()
