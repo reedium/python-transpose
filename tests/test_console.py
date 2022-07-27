@@ -13,10 +13,10 @@ def test_parse_arguments():
             "store",
             "--cache-filename",
             "test-cache-file.json",
-            "MyTarget",
-            "/tmp/some/path",
             "--store-path",
             "/mnt/store",
+            "MyTarget",
+            "/tmp/some/path",
         ]
     )
     assert args.cache_filename == "test-cache-file.json"
