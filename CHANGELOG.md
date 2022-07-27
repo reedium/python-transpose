@@ -1,5 +1,22 @@
 # Change Log
 
+## 1.1.0 (2022-07-26)
+
+### Breaking Changes
+* Moving store_path to only the store action
+
+Note: I know I said this shouldn't happen again but I couldn't help myself. This time....for sure.
+
+### Features
+* Allow for short -s for --store-path
+
+### Documentation
+* Add Quick Reference section
+
+### Tests
+* Updating tests to support moving store_path to store action
+
+
 ## 1.0.2 (2022-07-17)
 
 ### Added
