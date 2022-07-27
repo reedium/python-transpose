@@ -49,8 +49,8 @@ transpose restore ~/.local/share/transpose/zsh  # Remove symlink, move ~/.local/
 transpose apply   ~/.local/share/transpose/zsh  # Recreate symlink in cache location
 transpose create  ~/.config/zsh ~/.local/share/transpose/zsh  # Recreate cache file
 
-transpose store ~/.config/zsh zsh_config -s /mnt/backups    # Move ~/.config/zsh -> /mnt/backups/zsh_config, create symlink, create cache
-transpose --cache-filename .mycache.json restore /mnt/backups/zsh_config  # Use /mnt/backup/.zsh_config.json for restoring a stored directory
+transpose store -s /mnt/backups ~/.config/zsh zsh_config    # Move ~/.config/zsh -> /mnt/backups/zsh_config, create symlink, create cache
+transpose restore --cache-filename .mycache.json /mnt/backups/zsh_config  # Use /mnt/backup/.zsh_config.json for restoring a stored directory
 ```
 
 
