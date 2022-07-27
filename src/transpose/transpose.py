@@ -8,11 +8,9 @@ class Transpose:
     def __init__(
         self,
         target_path: str,
-        store_path: str,
         cache_filename: str = None,
     ) -> None:
         self.target_path = pathlib.Path(target_path)
-        self.store_path = pathlib.Path(store_path)
 
         if not cache_filename:
             cache_filename = ".transpose.json"
@@ -86,14 +84,14 @@ class Transpose:
         new_cache_path = pathlib.Path(original_path).joinpath(self.cache_filename)
         remove(new_cache_path)
 
-    def store(self, name: str = None) -> None:
+    def store(self, store_path: str, name: str = None) -> None:
         """
         Moves a directory to a central location and creates a symlink to the old path.
         """
         if name is None:
             name = self.target_path.name
 
-        new_location = pathlib.Path(self.store_path).joinpath(name)
+        new_location = pathlib.Path(store_path).joinpath(name)
 
         if not check_path(path=self.target_path):
             raise TransposeError(
