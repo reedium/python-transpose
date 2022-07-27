@@ -9,7 +9,6 @@ def entry_point() -> None:
 
     t = Transpose(
         target_path=args.target_path,
-        store_path=args.store_path,
         cache_filename=args.cache_filename,
     )
 
@@ -20,7 +19,7 @@ def entry_point() -> None:
     elif args.action == "restore":
         t.restore()
     elif args.action == "store":
-        t.store(name=args.name)
+        t.store(store_path=args.store_path, name=args.name)
 
 
 def parse_arguments(args=None):
@@ -43,14 +42,6 @@ def parse_arguments(args=None):
         """,
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
-    parser.add_argument(
-        "-s",
-        "--store-path",
-        dest="store_path",
-        nargs="?",
-        default=store_path,
-        help="The path to where the targets should be stored (default: %(default)s)",
-    )
 
     subparsers = parser.add_subparsers(
         help="Transpose Action", dest="action", required=True
@@ -104,6 +95,14 @@ def parse_arguments(args=None):
         nargs="?",
         default=None,
         help="The name of the directory that will be created in the store path (default: target_path)",
+    )
+    store_parser.add_argument(
+        "-s",
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=store_path,
+        help="The path to where the targets should be stored (default: %(default)s)",
     )
 
     return parser.parse_args(args)
