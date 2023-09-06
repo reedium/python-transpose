@@ -208,7 +208,7 @@ class Transpose:
         if storage_path.exists():
             raise TransposeError(f"Store path already exists: '{storage_path}'")
 
-        source_path = self.config.entries[name].path
+        source_path = Path(source_path)
         if not source_path.exists():
             raise TransposeError(f"Source path does not exist: '{source_path}'")
 
