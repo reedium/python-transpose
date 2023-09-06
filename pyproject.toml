@@ -10,8 +10,10 @@ readme = "README.md"
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
-black = "==22.6"
-flake8 = "==3.8.4"
+# black = "==22.6"
+# flake8 = "==3.8.4"
+black = "*"
+flake8 = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
