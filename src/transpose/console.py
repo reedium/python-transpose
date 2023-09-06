@@ -1,47 +1,63 @@
 import argparse
-import os
 
-from transpose import Transpose, version, DEFAULT_STORE_PATH, DEFAULT_CACHE_FILENAME
+from transpose import Transpose, version, DEFAULT_STORE_PATH
+from .exceptions import TransposeError
 
 
 def entry_point() -> None:
     args = parse_arguments()
+    config_path = f"{args.store_path}/transpose.json"
 
-    t = Transpose(
-        target_path=args.target_path,
-        cache_filename=args.cache_filename,
-    )
+    try:
+        run(args, config_path)
+    except TransposeError as e:
+        print(f"Tranpose Error: {e}")
+
+
+def run(args, config_path) -> None:
+    t = Transpose(config_path)
 
     if args.action == "apply":
-        t.apply()
-    elif args.action == "create":
-        t.create(stored_path=args.stored_path)
+        t.apply(args.name, force=args.force)
     elif args.action == "restore":
-        t.restore()
+        t.restore(args.name, force=args.force)
     elif args.action == "store":
-        t.store(store_path=args.store_path, name=args.name)
+        t.store(args.name, args.target_path)
+    elif args.action == "config":
+        if args.config_action == "add":
+            t.config.add(args.name, args.path)
+            t.config.save(config_path)
+        elif args.config_action == "get":
+            print(t.config.get(args.name))
+        elif args.config_action == "list":
+            for name in t.config.entries:
+                print(f"\t{name:<30} -> {t.config.entries[name].path}")
+        elif args.config_action == "remove":
+            t.config.remove(args.name)
+            t.config.save(config_path)
+        elif args.config_action == "update":
+            t.config.update(args.name, args.path)
+            t.config.save(config_path)
 
 
 def parse_arguments(args=None):
-    cache_filename = os.environ.get("TRANSPOSE_CACHE_FILENAME", DEFAULT_CACHE_FILENAME)
-    store_path = os.environ.get("TRANSPOSE_STORE_PATH", DEFAULT_STORE_PATH)
-
     base_parser = argparse.ArgumentParser(add_help=False)
-    base_parser.add_argument(
-        "--cache-filename",
-        dest="cache_filename",
-        nargs="?",
-        default=cache_filename,
-        help="The name of the cache file added to the target directory (default: %(default)s)",
-    )
 
     parser = argparse.ArgumentParser(
         parents=[base_parser],
         description="""
-        Move and symlink a path for easier management
+        Move and symlink a path for easy, central management
         """,
     )
     parser.add_argument("--version", action="version", version=f"Transpose {version}")
+    parser.add_argument(
+        "-s",
+        "--store-path",
+        dest="store_path",
+        nargs="?",
+        default=DEFAULT_STORE_PATH,
+        help="The location to store the moved entities (default: %(default)s)",
+    )
 
     subparsers = parser.add_subparsers(
         help="Transpose Action", dest="action", required=True
@@ -49,27 +65,14 @@ def parse_arguments(args=None):
 
     apply_parser = subparsers.add_parser(
         "apply",
-        help="Recreate the symlink from the cache file (useful after moving store loction)",
+        help="Recreate the symlink for an entity (useful after moving store locations)",
         parents=[base_parser],
     )
     apply_parser.add_argument(
-        "target_path",
-        help="The path to the directory to locate the cache file",
+        "name",
+        help="The name of the stored entity to apply",
     )
-
-    create_parser = subparsers.add_parser(
-        "create",
-        help="Create the cache file from an already stored path. Only creates the cache file.",
-        parents=[base_parser],
-    )
-    create_parser.add_argument(
-        "target_path",
-        help="The path to the directory that should by a symlink",
-    )
-    create_parser.add_argument(
-        "stored_path",
-        help="The path that is currently stored (the target of the symlink)",
-    )
+    apply_parser.add_argument("--force", dest="force", action="store_true")
 
     restore_parser = subparsers.add_parser(
         "restore",
@@ -77,9 +80,10 @@ def parse_arguments(args=None):
         parents=[base_parser],
     )
     restore_parser.add_argument(
-        "target_path",
-        help="The path to the directory to restore",
+        "name",
+        help="The name of the stored entity to restore",
     )
+    restore_parser.add_argument("--force", dest="force", action="store_true")
 
     store_parser = subparsers.add_parser(
         "store",
@@ -96,13 +100,68 @@ def parse_arguments(args=None):
         default=None,
         help="The name of the directory that will be created in the store path (default: target_path)",
     )
-    store_parser.add_argument(
-        "-s",
-        "--store-path",
-        dest="store_path",
-        nargs="?",
-        default=store_path,
-        help="The path to where the targets should be stored (default: %(default)s)",
+
+    config_parser = subparsers.add_parser(
+        "config",
+        help="Modify the transpose config file without any filesystem changes",
+        parents=[base_parser],
+    )
+    config_subparsers = config_parser.add_subparsers(
+        help="Transpose Config Action", dest="config_action", required=True
+    )
+
+    config_add_parser = config_subparsers.add_parser(
+        "add",
+        help="Add an entry manually to the tranpose config",
+        parents=[base_parser],
+    )
+    config_add_parser.add_argument(
+        "name",
+        help="The name of the entry in the store path",
+    )
+    config_add_parser.add_argument(
+        "path",
+        help="The path of the directory that should be symlinked to the store",
+    )
+
+    config_get_parser = config_subparsers.add_parser(
+        "get",
+        help="Retrieve the settings of a specific entity, such as the path",
+        parents=[base_parser],
+    )
+    config_get_parser.add_argument(
+        "name",
+        help="The name of the entry in the store path",
+    )
+
+    config_subparsers.add_parser(
+        "list",
+        help="List the names of all entities in the transpose config",
+        parents=[base_parser],
+    )
+
+    config_remove_parser = config_subparsers.add_parser(
+        "remove",
+        help="Remove an entry from the config",
+        parents=[base_parser],
+    )
+    config_remove_parser.add_argument(
+        "name",
+        help="The name of the entry in the store path",
+    )
+
+    config_update_parser = config_subparsers.add_parser(
+        "update",
+        help="Update an entry of the transpose config",
+        parents=[base_parser],
+    )
+    config_update_parser.add_argument(
+        "name",
+        help="The name of the entry in the store path",
+    )
+    config_update_parser.add_argument(
+        "path",
+        help="The path of the directory that should be symlinked to the store",
     )
 
     return parser.parse_args(args)
