@@ -142,22 +142,20 @@ class Transpose:
         if not self.config.entries.get(name):
             raise TransposeError(f"Entry does not  exist: '{name}'")
 
-        if self.config.entries[name].path.exists():
-            if self.config.entries[name].path.is_symlink():
-                remove(self.config.entries[name].path)
+        entry = self.config.entries[name]
+        if entry.path.exists():
+            if entry.path.is_symlink():
+                remove(entry.path)
             elif force:  # Backup the existing path, just in case
-                move(
-                    self.config.entries[name].path,
-                    self.config.entries[name].path.joinpath("-bak"),
-                )
+                move(entry.path, entry.path.joinpath("-bak"))
             else:
                 raise TransposeError(
-                    f"Entry path already exists, cannot restore (force required): '{self.config.entries[name].path}'"
+                    f"Entry path already exists, cannot restore (force required): '{entry.path}'"
                 )
 
         symlink(
             target_path=self.store_path.joinpath(name),
-            symlink_path=self.config.entries[name].path,
+            symlink_path=entry.path,
         )
 
     def restore(self, name: str, force: bool = False) -> None:
@@ -174,20 +172,18 @@ class Transpose:
         if not self.config.entries.get(name):
             raise TransposeError(f"Could not locate entry by name: '{name}'")
 
-        if self.config.entries[name].path.exists():
-            if self.config.entries[name].path.is_symlink():
-                remove(self.config.entries[name].path)
+        entry = self.config.entries[name]
+        if entry.path.exists():
+            if entry.path.is_symlink():
+                remove(entry.path)
             elif force:  # Backup the existing path, just in case
-                move(
-                    self.config.entries[name].path,
-                    self.config.entries[name].path.joinpath("-bak"),
-                )
+                move(entry.path, entry.path.joinpath("-bak"))
             else:
                 raise TransposeError(
-                    f"Entry path already exists, cannot restore (force required): '{self.config.entries[name].path}'"
+                    f"Entry path already exists, cannot restore (force required): '{entry.path}'"
                 )
 
-        move(self.store_path.joinpath(name), self.config.entries[name].path)
+        move(self.store_path.joinpath(name), entry.path)
 
         self.config.remove(name)
         self.config.save(self.config_path)
@@ -205,7 +201,7 @@ class Transpose:
         """
         if self.config.entries.get(name):
             raise TransposeError(
-                f"Entry already exists: '{name}' ({self.config.entries[name].path})"
+                f"Entry already exists: {name} -> {self.config.entries[name].path}"
             )
 
         storage_path = self.store_path.joinpath(name)
