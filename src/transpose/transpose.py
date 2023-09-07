@@ -1,111 +1,219 @@
-import pathlib
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 
+# from typing import Self
+
+import json
+
+from . import version as transpose_version
 from .exceptions import TransposeError
-from .utils import check_path, create_cache, get_cache, move, remove, symlink
+from .utils import move, remove, symlink
+
+
+@dataclass
+class TransposeEntry:
+    name: str
+    path: str
+
+
+@dataclass
+class TransposeConfig:
+    entries: dict = field(default_factory=dict)
+    version: str = field(default=transpose_version)
+
+    def add(self, name: str, path: str) -> None:
+        """
+        Add a new entry to the entries
+
+        Args:
+            name: The name of the entry (must not exist)
+            path: The path where the entry originally exists
+
+        Returns:
+            None
+        """
+        if self.entries.get(name):
+            raise TransposeError(f"'{name}' already exists")
+
+        self.entries[name] = TransposeEntry(name=name, path=str(path))
+
+    def get(self, name: str) -> TransposeEntry:
+        """
+        Get an entry by the name
+
+        Args:
+            name: The name of the entry (must exist)
+
+        Returns:
+            TransposeEntry
+        """
+        try:
+            return self.entries[name]
+        except KeyError:
+            raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
+    def remove(self, name: str) -> None:
+        """
+        Remove an entry by name
+
+        Args:
+            name: The name of the entry (must exist)
+
+        Returns:
+            None
+        """
+        try:
+            del self.entries[name]
+        except KeyError:
+            raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
+    def update(self, name: str, path: str) -> None:
+        """
+        Update an entry by name
+
+        Args:
+            name: The name of the entry (must exist)
+            path: The path where the entry originally exists
+
+        Returns:
+            None
+        """
+        try:
+            self.entries[name].path = path
+        except KeyError:
+            raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
+    @staticmethod
+    def load(config_path: str):  # -> Self:
+        in_config = json.load(open(config_path, "r"))
+        config = TransposeConfig()
+        try:
+            for name in in_config["entries"]:
+                config.add(name, in_config["entries"][name]["path"])
+        except (KeyError, TypeError) as e:
+            raise TransposeError(f"Unrecognized Transpose config file format: {e}")
+
+        return config
+
+    def save(self, config_path: str) -> None:
+        """
+        Save the Config to a location in JSON format
+
+        Args:
+            path: The path to save the json file
+
+        Returns:
+            None
+        """
+        config_path = Path(config_path)
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(str(config_path), "w") as f:
+            json.dump(self.to_dict(), f)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
 
 
 class Transpose:
-    def __init__(
-        self,
-        target_path: str,
-        cache_filename: str = None,
-    ) -> None:
-        self.target_path = pathlib.Path(target_path)
+    config: TransposeConfig
+    config_path: Path
+    store_path: Path
 
-        if not cache_filename:
-            cache_filename = ".transpose.json"
-        self.cache_filename = cache_filename
-        self.cache_path = pathlib.Path(self.target_path).joinpath(cache_filename)
+    def __init__(self, config_path: str) -> None:
+        self.config = TransposeConfig.load(config_path)
+        self.config_path = Path(config_path)
+        self.store_path = self.config_path.parent
 
-    def apply(self) -> None:
+        if not self.store_path.exists():
+            self.store_path.mkdir(parents=True)
+
+    def apply(self, name: str, force: bool = False) -> None:
         """
-        Recreate the symlink from an existing cache file
+        Create/recreate the symlink to an existing entry
+
+        Args:
+            name: The name of the entry (must exist)
+            force: If enabled and path already exists, move the path to '{path}-bak'
+
+        Returns:
+            None
         """
-        if not self.cache_path.exists():
-            raise TransposeError(
-                f"Cache file does not exist indicating target is not managed by Transpose: {self.cache_path}"
-            )
+        if not self.config.entries.get(name):
+            raise TransposeError(f"Entry does not exist: '{name}'")
 
-        cache = get_cache(self.cache_path)
-        original_path = pathlib.Path(cache["original_path"]).expanduser()
+        entry_path = Path(self.config.entries[name].path)
+        if entry_path.exists():
+            if entry_path.is_symlink():
+                remove(entry_path)
+            elif force:  # Backup the existing path
+                move(entry_path, entry_path.with_suffix(".backup"))
+            else:
+                raise TransposeError(
+                    f"Entry path already exists, cannot apply (force required): '{entry_path}'"
+                )
 
-        if original_path.is_symlink():
-            remove(original_path)
-
-        symlink(target_path=self.cache_path.parent, symlink_path=original_path)
-
-    def create(self, stored_path: str) -> None:
-        """
-        Create the cache file from the target directory and stored directory
-
-        This is useful if a path is already stored somewhere else but the cache file is missing
-
-        Ideally, the target should be a symlink or not exist so a restore or apply can function
-        """
-        stored_path = pathlib.Path(stored_path)
-        if not stored_path.exists():
-            raise TransposeError(f"Stored path does not exist: {stored_path}")
-
-        self.cache_path = stored_path.joinpath(self.cache_filename)
-
-        create_cache(
-            cache_path=self.cache_path,
-            original_path=self.target_path,
+        symlink(
+            target_path=self.store_path.joinpath(name),
+            symlink_path=entry_path,
         )
 
-    def restore(self) -> None:
+    def restore(self, name: str, force: bool = False) -> None:
         """
-        Restores a previously Transpose managed directory to it's previous location.
+        Remove the symlink and move the stored entry back to it's original path
+
+        Args:
+            name: The name of the entry (must exist)
+            force: If enabled and path already exists, move the path to '{path}-bak'
+
+        Returns:
+            None
         """
-        if not self.cache_path.exists():
-            raise TransposeError(
-                f"Cache file does not exist indicating target is not managed by Transpose: {self.cache_path}"
-            )
-        if not self.target_path.exists():
-            raise TransposeError(f"Target path does not exist: {self.target_path}")
+        if not self.config.entries.get(name):
+            raise TransposeError(f"Could not locate entry by name: '{name}'")
 
-        cache = get_cache(self.cache_path)
-        original_path = pathlib.Path(cache["original_path"]).expanduser()
+        entry_path = Path(self.config.entries[name].path)
+        if entry_path.exists():
+            if entry_path.is_symlink():
+                remove(entry_path)
+            elif force:  # Backup the existing path
+                move(entry_path, entry_path.with_suffix(".backup"))
+            else:
+                raise TransposeError(
+                    f"Entry path already exists, cannot restore (force required): '{entry_path}'"
+                )
 
-        if original_path.is_symlink():
-            remove(original_path)
-        elif original_path.exists():
-            raise TransposeError(
-                f"Original path in cache file already exists: {original_path}"
-            )
+        move(self.store_path.joinpath(name), entry_path)
 
-        try:
-            move(source=self.target_path, destination=original_path)
-        except FileNotFoundError:
-            raise TransposeError(
-                f"Original path, {original_path}, does not exist. Use '-f' to create the path"
-            )
+        self.config.remove(name)
+        self.config.save(self.config_path)
 
-        new_cache_path = pathlib.Path(original_path).joinpath(self.cache_filename)
-        remove(new_cache_path)
-
-    def store(self, store_path: str, name: str = None) -> None:
+    def store(self, name: str, source_path: str) -> None:
         """
-        Moves a directory to a central location and creates a symlink to the old path.
+        Move the source path to the store path, create a symlink, and update the config
+
+        Args:
+            name: The name of the entry
+            source_path: The directory or file to be stored
+
+        Returns:
+            None
         """
-        if name is None:
-            name = self.target_path.name
-
-        new_location = pathlib.Path(store_path).joinpath(name)
-
-        if not check_path(path=self.target_path):
+        if self.config.entries.get(name):
             raise TransposeError(
-                f"Target path, {self.target_path}, does not exist. Cannot continue."
-            )
-        if check_path(path=new_location):
-            raise TransposeError(
-                f"Store path, {new_location}, already exists. Cannot continue."
+                f"Entry already exists: {name} -> {self.config.entries[name].path}"
             )
 
-        create_cache(
-            cache_path=self.cache_path,
-            original_path=self.target_path,
-        )
+        storage_path = self.store_path.joinpath(name)
+        if storage_path.exists():
+            raise TransposeError(f"Store path already exists: '{storage_path}'")
 
-        move(source=self.target_path, destination=new_location)
-        symlink(target_path=new_location, symlink_path=self.target_path)
+        source_path = Path(source_path)
+        if not source_path.exists():
+            raise TransposeError(f"Source path does not exist: '{source_path}'")
+
+        move(source=source_path, destination=storage_path)
+        symlink(target_path=storage_path, symlink_path=source_path)
+
+        self.config.add(name, source_path)
+        self.config.save(self.config_path)

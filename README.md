@@ -14,6 +14,8 @@ A tool for moving and symlinking directories to a central location
     * [Storing a Directory](#storing-a-directory)
     * [Restoring a Stored Directory](#restoring-a-stored-directory)
     * [Applying a Previously Transpose Managed Directory](#applying-a-previously-transpose-managed-directory)
+    * [Modifying Tranpose Config Directly](#modifying-tranpose-config-directly)
+* [Development](#development)
 
 <!-- vim-markdown-toc -->
 
@@ -44,17 +46,18 @@ pip install .
 ## Quick Reference
 
 ```
-transpose store   ~/.config/zsh                 # Move ~/.config/zsh -> ~/.local/share/transpose/zsh, create symlink, create cache
-transpose restore ~/.local/share/transpose/zsh  # Remove symlink, move ~/.local/share/transpose/zsh -> ~/.config/zsh, remove cache
-transpose apply   ~/.local/share/transpose/zsh  # Recreate symlink in cache location
-transpose create  ~/.config/zsh ~/.local/share/transpose/zsh  # Recreate cache file
+transpose store ~/.config/zsh                   # Move ~/.config/zsh -> ~/.local/share/transpose/zsh, create symlink, create cache
+transpose restore zsh                           # Remove symlink, move ~/.local/share/transpose/zsh_config -> ~/.config/zsh, remove cache
+transpose apply zsh                             # Recreate symlink in store path (useful after moving Store Path location)
 
-transpose store -s /mnt/backups ~/.config/zsh zsh_config    # Move ~/.config/zsh -> /mnt/backups/zsh_config, create symlink, create cache
-transpose restore --cache-filename .mycache.json /mnt/backups/zsh_config  # Use /mnt/backup/.zsh_config.json for restoring a stored directory
+transpose store -s /mnt/backups ~/.config/zsh zsh_config    # Move ~/.config/zsh -> /mnt/backups/zsh_config, create symlink
 ```
 
 
 ## Usage
+
+See `transpose --help` for more information on each comment
+
 
 ### Storing a Directory
 
@@ -76,7 +79,6 @@ The above will (assuming using all the defaults):
 Note: The name on the end (`My Documents` above), can be ommitted. The stored name will use the target name (e.g. `Documents` above)
 
 
-
 ### Restoring a Stored Directory
 
 Restoring a directory will:
@@ -85,21 +87,47 @@ Restoring a directory will:
 2. Move the stored directory to the `original_path`
 
 ```
-transpose restore "/home/user/.local/share/transpose/My Documents"
+transpose restore Game1
 ```
 
 The above will (assuming all the defaults):
 
-1. Remove the symlink at `/home/user/Documents` (from cache file)
-2. Move `$XDG_DATA_HOME/transpose/My Documents` to `/home/user/Documents`
+1. Remove the symlink at `/home/user/Documents/games/MyGame` (from settings file)
+2. Move `$XDG_DATA_HOME/transpose/Game1` to `/home/user/Documents/games/MyGame`
 
 
 ### Applying a Previously Transpose Managed Directory
 
-This will recreate the symlink based on the cache file within the directory.
+This will recreate the symlink based on the config file within the directory.
 
 This is most useful when moving the stored directory.
 
 ```
-transpose apple "/home/user/.local/share/transpose/My Documents"
+transpose apply "Game1"
+```
+
+
+### Modifying Tranpose Config Directly
+
+It's possible to modify the tranpose configuration file, `STORE_PATH/transpose.json`, using the console:
+
+```
+transpose config add "NewEntry" "/path/to/location"
+transpose config get "NewEntry"
+transpose config list
+transpose config remove "NewEntry"
+```
+
+
+## Development
+
+```
+poetry install
+poetry add --dev black
+poetry update # Only to update to latest versions, update poetry.lock
+
+poetry run python src/transpose/console.py
+poetry run pytest --cov=transpose --cov-report html tests
+
+poetry shell
 ```
