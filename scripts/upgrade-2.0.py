@@ -1,7 +1,7 @@
 """
 Loops through STORE_PATH, looking for */.transpose files, create new transpose config file
 
-    Note: This does not remove the v1 */.transpose files, just in case. Must be done if desired.
+    Note: This does not remove the v1 */.transpose files, just in case. Must be done manually if desired.
 """
 from pathlib import Path
 
