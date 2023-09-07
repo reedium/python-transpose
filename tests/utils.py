@@ -29,14 +29,14 @@ def setup_apply():
     Create the following directory structure:
         tests-temp/
         ├── store/
-        │   └── transpose.json
-        ├── target/
+        │   ├── transpose.json
+        │   └── MyName/
         └── symlink_test/ -> source/
     """
     try:
         with TemporaryDirectory(str(TESTS_PATH)):
             STORE_PATH.mkdir(parents=True, exist_ok=True)
-            TARGET_PATH.mkdir(parents=True, exist_ok=True)
+            ENTRY_STORE_PATH.mkdir(parents=True, exist_ok=True)
             SYMLINK_TEST_PATH.symlink_to(TARGET_PATH.resolve())
 
             with open(str(TRANSPOSE_CONFIG_PATH), "w") as f:
@@ -53,14 +53,15 @@ def setup_restore():
     """
     Create the following directory structure:
         tests-temp/
-        └── store/
-            ├── MyName/
-            └── transpose.json
+        ├── store/
+        │   ├── MyName/
+        │   └── transpose.json
+        └── symlink_test -> store/MyName
     """
     try:
         with TemporaryDirectory(str(TESTS_PATH)):
             ENTRY_STORE_PATH.mkdir(parents=True, exist_ok=True)
-            TARGET_PATH.mkdir(parents=True, exist_ok=True)
+            SYMLINK_TEST_PATH.symlink_to(TARGET_PATH)
 
             with open(str(TRANSPOSE_CONFIG_PATH), "w") as f:
                 json.dump(TRANSPOSE_CONFIG, f)
