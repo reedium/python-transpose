@@ -12,4 +12,4 @@ version = version("transpose")
 
 logger = create_logger(__package__)
 
-from .transpose import Transpose  # noqa: E402
+from .transpose import Transpose, TransposeConfig, TransposeEntry  # noqa: E402
