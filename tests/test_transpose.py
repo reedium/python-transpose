@@ -10,6 +10,7 @@ from .utils import (
     ENTRY_STORE_PATH,
     STORE_PATH,
     TARGET_PATH,
+    TRANSPOSE_CONFIG,
     TRANSPOSE_CONFIG_PATH,
     setup_restore,
     setup_store,
@@ -120,29 +121,73 @@ def test_store_conflicts():
 
 @setup_store()
 def test_config_add():
-    pass  # TODO
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    with pytest.raises(TransposeError, match=f"'{ENTRY_NAME}' already exists"):
+        config.add(ENTRY_NAME, TARGET_PATH)
+
+    config.add("NewEntry", TARGET_PATH)
+    assert config.entries.get("NewEntry")
+    assert config.entries["NewEntry"].path == str(TARGET_PATH)
 
 
 @setup_store()
 def test_config_get():
-    pass  # TODO
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
 
+    with pytest.raises(
+        TransposeError, match="does not exist in Transpose config entries"
+    ):
+        config.get("UnknownEntry")
 
-@setup_store()
-def test_config_list():
-    pass  # TODO
+    assert config.get(ENTRY_NAME).path == str(TARGET_PATH)
 
 
 @setup_store()
 def test_config_remove():
-    pass  # TODO
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    with pytest.raises(
+        TransposeError, match="does not exist in Transpose config entries"
+    ):
+        config.remove("UnknownEntry")
+
+    config.remove(ENTRY_NAME)
+    assert not config.entries.get(ENTRY_NAME)
+
+
+@setup_store()
+def test_config_update():
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    with pytest.raises(
+        TransposeError, match="does not exist in Transpose config entries"
+    ):
+        config.update("UnknownEntry", "/some/new/path")
+
+    config.update(ENTRY_NAME, "/some/new/path")
+    assert config.entries[ENTRY_NAME].path == "/some/new/path"
 
 
 @setup_store()
 def test_config_save():
-    pass  # TODO
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+    config.save(STORE_PATH.joinpath("test.json"))
+
+    with open(STORE_PATH.joinpath("test.json"), "r") as f:
+        saved_config = json.load(f)
+
+    assert (
+        config.entries[ENTRY_NAME].path == saved_config["entries"][ENTRY_NAME]["path"]
+    )
 
 
 @setup_store()
 def test_config_load():
-    pass  # TODO
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    assert config.entries.get(ENTRY_NAME)
+    assert (
+        config.entries[ENTRY_NAME].path
+        == TRANSPOSE_CONFIG["entries"][ENTRY_NAME]["path"]
+    )
