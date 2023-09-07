@@ -146,7 +146,7 @@ class Transpose:
         if entry_path.exists():
             if entry_path.is_symlink():
                 remove(entry_path)
-            elif force:  # Backup the existing path, just in case
+            elif force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
             else:
                 raise TransposeError(
@@ -176,7 +176,7 @@ class Transpose:
         if entry_path.exists():
             if entry_path.is_symlink():
                 remove(entry_path)
-            elif force:  # Backup the existing path, just in case
+            elif force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
             else:
                 raise TransposeError(
@@ -193,7 +193,7 @@ class Transpose:
         Move the source path to the store path, create a symlink, and update the config
 
         Args:
-            name: The name of the entry (must exist)
+            name: The name of the entry
             source_path: The directory or file to be stored
 
         Returns:
