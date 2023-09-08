@@ -1,5 +1,7 @@
 import argparse
 
+from pathlib import Path
+
 from transpose import Transpose, version, DEFAULT_STORE_PATH
 from .exceptions import TransposeError
 
@@ -22,6 +24,9 @@ def run(args, config_path) -> None:
     elif args.action == "restore":
         t.restore(args.name, force=args.force)
     elif args.action == "store":
+        if not args.name:
+            target_path = Path(args.target_path)
+            args.name = str(target_path.parts[-1])
         t.store(args.name, args.target_path)
     elif args.action == "config":
         if args.config_action == "add":
