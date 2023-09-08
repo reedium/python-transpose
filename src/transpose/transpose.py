@@ -85,7 +85,11 @@ class TransposeConfig:
 
     @staticmethod
     def load(config_path: str):  # -> Self:
-        in_config = json.load(open(config_path, "r"))
+        try:
+            in_config = json.load(open(config_path, "r"))
+        except json.decoder.JSONDecodeError as e:
+            raise TransposeError(f"Invalid JSON format for '{config_path}': {e}")
+
         config = TransposeConfig()
         try:
             for name in in_config["entries"]:

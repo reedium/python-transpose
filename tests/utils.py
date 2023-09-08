@@ -79,6 +79,8 @@ def setup_store():
         tests-temp/
         ├── source/
         └── store/
+        │   ├── transpose-bad.json
+        │   ├── transpose-invalid.json
             └── transpose.json
     """
     try:
@@ -88,6 +90,18 @@ def setup_store():
 
             with open(str(TRANSPOSE_CONFIG_PATH), "w") as f:
                 json.dump(TRANSPOSE_CONFIG, f)
+
+            bad_config_path = STORE_PATH.joinpath("transpose-bad.json")
+            bad_config = '{"version": "1.0.0"}'  # Missing entries
+            with open(str(bad_config_path), "w") as f:
+                f.write(bad_config)
+            assert bad_config_path.exists()
+
+            invalid_config_path = STORE_PATH.joinpath("transpose-invalid.json")
+            invalid_config = "[{'invalidJSONFormat'}]"
+            with open(str(invalid_config_path), "w") as f:
+                f.write(invalid_config)
+            assert invalid_config_path.exists()
 
             yield
     finally:

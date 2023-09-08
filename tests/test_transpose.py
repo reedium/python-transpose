@@ -191,3 +191,11 @@ def test_config_load():
         config.entries[ENTRY_NAME].path
         == TRANSPOSE_CONFIG["entries"][ENTRY_NAME]["path"]
     )
+
+    with pytest.raises(
+        TransposeError, match="Unrecognized Transpose config file format"
+    ):
+        config = TransposeConfig.load(STORE_PATH.joinpath("transpose-bad.json"))
+
+    with pytest.raises(TransposeError, match="Invalid JSON format"):
+        config = TransposeConfig.load(STORE_PATH.joinpath("transpose-invalid.json"))
