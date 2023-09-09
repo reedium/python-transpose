@@ -15,7 +15,7 @@ from .utils import (
 )
 
 
-class ConfigArgs:
+class RunArgs:
     name: str = "MyName"
     action: str = "config"
     forced: bool = False
@@ -121,19 +121,32 @@ def test_parse_arguments_restore():
     assert args.force is True
 
 
+def test_run_apply():
+    pass
+
+
+def test_run_restore():
+    pass
+
+
+def test_run_store():
+    pass
+
+
 @setup_restore()
 def test_run_config_add():
-    args = ConfigArgs("add")
+    args = RunArgs("add")
     args.name = "MyName2"
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+
     assert config.entries.get(args.name)
 
 
 @setup_restore()
 def test_run_config_get(capsys):
-    args = ConfigArgs("get")
+    args = RunArgs("get")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     captured = capsys.readouterr()
@@ -143,7 +156,7 @@ def test_run_config_get(capsys):
 
 @setup_restore()
 def test_run_config_list(capsys):
-    args = ConfigArgs("list")
+    args = RunArgs("list")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     captured = capsys.readouterr()
@@ -153,18 +166,20 @@ def test_run_config_list(capsys):
 
 @setup_restore()
 def test_run_config_remove():
-    args = ConfigArgs("remove")
+    args = RunArgs("remove")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+
     assert not config.entries.get(args.name)
 
 
 @setup_restore()
 def test_run_config_update():
-    args = ConfigArgs("update")
+    args = RunArgs("update")
     args.path = "/var/tmp/something"
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+
     assert config.entries[args.name].path == args.path
