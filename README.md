@@ -14,7 +14,7 @@ A tool for moving and symlinking directories to a central location
     * [Storing a Directory](#storing-a-directory)
     * [Restoring a Stored Directory](#restoring-a-stored-directory)
     * [Applying a Previously Transpose Managed Directory](#applying-a-previously-transpose-managed-directory)
-    * [Modifying Tranpose Config Directly](#modifying-tranpose-config-directly)
+    * [Modifying Transpose Config Directly](#modifying-transpose-config-directly)
 * [Development](#development)
 
 <!-- vim-markdown-toc -->
@@ -107,9 +107,9 @@ transpose apply "Game1"
 ```
 
 
-### Modifying Tranpose Config Directly
+### Modifying Transpose Config Directly
 
-It's possible to modify the tranpose configuration file, `STORE_PATH/transpose.json`, using the console:
+It's possible to modify the transpose configuration file, `STORE_PATH/transpose.json`, using the console:
 
 ```
 transpose config add "NewEntry" "/path/to/location"

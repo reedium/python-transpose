@@ -13,7 +13,7 @@ def entry_point() -> None:
     try:
         run(args, config_path)
     except TransposeError as e:
-        print(f"Tranpose Error: {e}")
+        print(f"Transpose Error: {e}")
 
 
 def run(args, config_path) -> None:
