@@ -1,6 +1,29 @@
 import pytest
 
-from transpose.console import parse_arguments
+from pathlib import Path
+
+from transpose import TransposeConfig
+from transpose.console import parse_arguments, run as run_console
+
+from .utils import (
+    setup_restore,
+    setup_store,
+    setup_apply,
+    STORE_PATH,
+    TARGET_PATH,
+    TRANSPOSE_CONFIG_PATH,
+)
+
+
+class ConfigArgs:
+    name: str = "MyName"
+    action: str = "config"
+    forced: bool = False
+    path: str = str(TARGET_PATH)
+    config_action: str
+
+    def __init__(self, config_action: str) -> None:
+        self.config_action = config_action
 
 
 def test_parse_arguments():
@@ -96,3 +119,52 @@ def test_parse_arguments_restore():
 
     args = parse_arguments(["restore", "SomeName", "--force"])
     assert args.force is True
+
+
+@setup_restore()
+def test_run_config_add():
+    args = ConfigArgs("add")
+    args.name = "MyName2"
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+    assert config.entries.get(args.name)
+
+
+@setup_restore()
+def test_run_config_get(capsys):
+    args = ConfigArgs("get")
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    captured = capsys.readouterr()
+
+    assert str(TARGET_PATH) in captured.out
+
+
+@setup_restore()
+def test_run_config_list(capsys):
+    args = ConfigArgs("list")
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    captured = capsys.readouterr()
+
+    assert f"-> {TARGET_PATH}" in captured.out
+
+
+@setup_restore()
+def test_run_config_remove():
+    args = ConfigArgs("remove")
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+    assert not config.entries.get(args.name)
+
+
+@setup_restore()
+def test_run_config_update():
+    args = ConfigArgs("update")
+    args.path = "/var/tmp/something"
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
+    assert config.entries[args.name].path == args.path
