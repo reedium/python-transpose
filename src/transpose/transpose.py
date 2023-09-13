@@ -3,6 +3,7 @@ from pathlib import Path
 
 # from typing import Self
 
+import datetime
 import json
 
 from . import version as transpose_version
@@ -14,6 +15,7 @@ from .utils import move, remove, symlink
 class TransposeEntry:
     name: str
     path: str
+    created: str  # Should be datetime.datetime but not really necessary here
 
 
 @dataclass
@@ -21,13 +23,14 @@ class TransposeConfig:
     entries: dict = field(default_factory=dict)
     version: str = field(default=transpose_version)
 
-    def add(self, name: str, path: str) -> None:
+    def add(self, name: str, path: str, created: str = None) -> None:
         """
         Add a new entry to the entries
 
         Args:
             name: The name of the entry (must not exist)
             path: The path where the entry originally exists
+            created: The date in datetime.now().__str__() format
 
         Returns:
             None
@@ -35,7 +38,14 @@ class TransposeConfig:
         if self.entries.get(name):
             raise TransposeError(f"'{name}' already exists")
 
-        self.entries[name] = TransposeEntry(name=name, path=str(path))
+        if not created:
+            created = str(datetime.datetime.now())
+
+        self.entries[name] = TransposeEntry(
+            name=name,
+            path=str(path),
+            created=created,
+        )
 
     def get(self, name: str) -> TransposeEntry:
         """
@@ -93,7 +103,11 @@ class TransposeConfig:
         config = TransposeConfig()
         try:
             for name in in_config["entries"]:
-                config.add(name, in_config["entries"][name]["path"])
+                config.add(
+                    name,
+                    in_config["entries"][name]["path"],
+                    created=in_config["entries"].get("created"),
+                )
         except (KeyError, TypeError) as e:
             raise TransposeError(f"Unrecognized Transpose config file format: {e}")
 
@@ -113,7 +127,7 @@ class TransposeConfig:
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(str(config_path), "w") as f:
-            json.dump(self.to_dict(), f)
+            json.dump(self.to_dict(), f, default=str)
 
     def to_dict(self) -> dict:
         return asdict(self)

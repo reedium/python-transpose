@@ -20,6 +20,7 @@ TRANSPOSE_CONFIG_PATH = STORE_PATH.joinpath("transpose.json")
 TRANSPOSE_CONFIG = {
     "version": version,
     "entries": {ENTRY_NAME: {"name": ENTRY_NAME, "path": str(TARGET_PATH)}},
+    "created": "2023-01-21 01:02:03.1234567",
 }
 
 
