@@ -7,7 +7,7 @@ def move(source: Path, destination: Path) -> None:
     """
     Move a file using pathlib
     """
-    shutil.move(source, destination)
+    shutil.move(source.expanduser(), destination.expanduser())
 
 
 def remove(path: Path) -> None:
