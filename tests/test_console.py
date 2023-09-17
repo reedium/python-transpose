@@ -7,18 +7,31 @@ from transpose.console import parse_arguments, run as run_console
 
 from .utils import (
     setup_restore,
-    setup_store,
     setup_apply,
+    ENTRY_NAME,
+    SECOND_ENTRY_NAME,
     STORE_PATH,
     TARGET_PATH,
+    SECOND_TARGET_PATH,
     TRANSPOSE_CONFIG_PATH,
 )
 
 
-class RunArgs:
-    name: str = "MyName"
+class RunActionArgs:
+    name: str = ENTRY_NAME
+    path: str = str(TARGET_PATH)
+    action: str
+    force: bool
+
+    def __init__(self, action: str, force: bool = False) -> None:
+        self.action = action
+        self.force = force
+
+
+class RunConfigArgs:
+    name: str = ENTRY_NAME
     action: str = "config"
-    forced: bool = False
+    force: bool = False
     path: str = str(TARGET_PATH)
     config_action: str
 
@@ -121,8 +134,36 @@ def test_parse_arguments_restore():
     assert args.force is True
 
 
+@setup_apply()
 def test_run_apply():
-    pass
+    args = RunActionArgs("apply", False)
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+
+    assert TARGET_PATH.is_symlink()
+
+
+@setup_apply()
+def test_run_apply_all(capsys):
+    args = RunActionArgs("apply-all", False)
+
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    captured = capsys.readouterr()
+
+    assert f"\t{ENTRY_NAME:<30}: success" in captured.out
+    assert f"\t{SECOND_ENTRY_NAME:<30}: Entry path already exists" in captured.out
+    assert TARGET_PATH.is_symlink()
+    assert SECOND_TARGET_PATH.is_dir()
+
+    args.force = True
+    run_console(args, TRANSPOSE_CONFIG_PATH)
+    captured = capsys.readouterr()
+
+    assert f"\t{ENTRY_NAME:<30}: success" in captured.out
+    assert f"\t{SECOND_ENTRY_NAME:<30}: success" in captured.out
+
+    assert SECOND_TARGET_PATH.is_symlink()
+    assert SECOND_TARGET_PATH.with_suffix(".backup").is_dir()
 
 
 def test_run_restore():
@@ -135,7 +176,7 @@ def test_run_store():
 
 @setup_restore()
 def test_run_config_add():
-    args = RunArgs("add")
+    args = RunConfigArgs("add")
     args.name = "MyName2"
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
@@ -146,7 +187,7 @@ def test_run_config_add():
 
 @setup_restore()
 def test_run_config_get(capsys):
-    args = RunArgs("get")
+    args = RunConfigArgs("get")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     captured = capsys.readouterr()
@@ -156,7 +197,7 @@ def test_run_config_get(capsys):
 
 @setup_restore()
 def test_run_config_list(capsys):
-    args = RunArgs("list")
+    args = RunConfigArgs("list")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     captured = capsys.readouterr()
@@ -166,7 +207,7 @@ def test_run_config_list(capsys):
 
 @setup_restore()
 def test_run_config_remove():
-    args = RunArgs("remove")
+    args = RunConfigArgs("remove")
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
@@ -176,7 +217,7 @@ def test_run_config_remove():
 
 @setup_restore()
 def test_run_config_update():
-    args = RunArgs("update")
+    args = RunConfigArgs("update")
     args.path = "/var/tmp/something"
 
     run_console(args, TRANSPOSE_CONFIG_PATH)

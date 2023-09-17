@@ -8,7 +8,7 @@ import json
 
 from . import version as transpose_version
 from .exceptions import TransposeError
-from .utils import move, remove, symlink
+from .utils import move, symlink
 
 
 @dataclass
@@ -152,7 +152,7 @@ class Transpose:
 
         Args:
             name: The name of the entry (must exist)
-            force: If enabled and path already exists, move the path to '{path}-bak'
+            force: If enabled and path already exists, move the path to '{path}.backup' first
 
         Returns:
             None
@@ -162,9 +162,7 @@ class Transpose:
 
         entry_path = Path(self.config.entries[name].path)
         if entry_path.exists():
-            if entry_path.is_symlink():
-                remove(entry_path)
-            elif force:  # Backup the existing path
+            if force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
             else:
                 raise TransposeError(
@@ -182,7 +180,7 @@ class Transpose:
 
         Args:
             name: The name of the entry (must exist)
-            force: If enabled and path already exists, move the path to '{path}-bak'
+            force: If enabled and path already exists, move the path to '{path}.backup' first
 
         Returns:
             None
@@ -192,9 +190,7 @@ class Transpose:
 
         entry_path = Path(self.config.entries[name].path)
         if entry_path.exists():
-            if entry_path.is_symlink():
-                remove(entry_path)
-            elif force:  # Backup the existing path
+            if force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
             else:
                 raise TransposeError(

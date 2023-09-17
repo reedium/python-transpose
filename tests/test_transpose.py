@@ -38,12 +38,6 @@ def test_apply():
     with pytest.raises(TransposeError, match="Entry does not exist"):
         t.apply("BadName")
 
-    # Will remove the symlink created above and reapply
-    # TODO: Check symlink path
-    t.apply(ENTRY_NAME)
-    assert TARGET_PATH.is_symlink()
-    assert ENTRY_STORE_PATH.is_dir()
-
     # Target already exists, force not set
     TARGET_PATH.unlink()
     TARGET_PATH.mkdir()

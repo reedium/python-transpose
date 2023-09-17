@@ -21,6 +21,8 @@ def run(args, config_path) -> None:
 
     if args.action == "apply":
         t.apply(args.name, force=args.force)
+    if args.action == "apply-all":
+        run_apply_all(t, force=args.force)
     elif args.action == "restore":
         t.restore(args.name, force=args.force)
     elif args.action == "store":
@@ -43,6 +45,34 @@ def run(args, config_path) -> None:
         elif args.config_action == "update":
             t.config.update(args.name, args.path)
             t.config.save(config_path)
+
+
+def run_apply_all(t: Transpose, force: bool = False) -> None:
+    """
+    Loop over the entries and recreate the symlinks to the store location
+
+    Useful after restoring the machine
+
+    Args:
+        t: An instance of Transpose
+        force: If enabled and path already exists, move the path to '{path}.backup' first
+
+    Returns:
+        None
+    """
+    results = {}
+    for entry_name in t.config.entries:
+        try:
+            t.apply(entry_name, force)
+            results[entry_name] = {"status": "success", "error": ""}
+        except TransposeError as e:
+            results[entry_name] = {"status": "failure", "error": str(e)}
+
+    for name in sorted(results):
+        if results[name]["status"] != "success":
+            print(f"\t{name:<30}: {results[name]['error']}")
+        else:
+            print(f"\t{name:<30}: success")
 
 
 def parse_arguments(args=None):
@@ -77,7 +107,24 @@ def parse_arguments(args=None):
         "name",
         help="The name of the stored entity to apply",
     )
-    apply_parser.add_argument("--force", dest="force", action="store_true")
+    apply_parser.add_argument(
+        "--force",
+        dest="force",
+        help="If original path already exists, existing path to <path>.backup and continue",
+        action="store_true",
+    )
+
+    apply_all_parser = subparsers.add_parser(
+        "apply-all",
+        help="Recreate the symlink for all entities",
+        parents=[base_parser],
+    )
+    apply_all_parser.add_argument(
+        "--force",
+        dest="force",
+        help="If original path already exists, existing path to <path>.backup and continue",
+        action="store_true",
+    )
 
     restore_parser = subparsers.add_parser(
         "restore",
