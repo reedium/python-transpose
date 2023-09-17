@@ -9,9 +9,11 @@ from transpose import version
 
 
 ENTRY_NAME = "MyName"
+SECOND_ENTRY_NAME = "SecondEntry"
 TESTS_PATH = Path("tests-temp")
 STORE_PATH = TESTS_PATH.joinpath("store")
 TARGET_PATH = TESTS_PATH.joinpath("source")
+SECOND_TARGET_PATH = TESTS_PATH.joinpath("second_source")
 SYMLINK_TEST_PATH = TESTS_PATH.joinpath("symlink_test")
 
 ENTRY_STORE_PATH = STORE_PATH.joinpath(ENTRY_NAME)
@@ -19,8 +21,18 @@ TRANSPOSE_CONFIG_PATH = STORE_PATH.joinpath("transpose.json")
 
 TRANSPOSE_CONFIG = {
     "version": version,
-    "entries": {ENTRY_NAME: {"name": ENTRY_NAME, "path": str(TARGET_PATH)}},
-    "created": "2023-01-21 01:02:03.1234567",
+    "entries": {
+        ENTRY_NAME: {
+            "name": ENTRY_NAME,
+            "path": str(TARGET_PATH),
+            "created": "2023-01-21 01:02:03.1234567",
+        },
+        SECOND_ENTRY_NAME: {
+            "name": SECOND_ENTRY_NAME,
+            "path": str(SECOND_TARGET_PATH),
+            "created": "2023-02-23 01:02:03.1234567",
+        },
+    },
 }
 
 
@@ -31,13 +43,17 @@ def setup_apply():
         tests-temp/
         ├── store/
         │   ├── transpose.json
-        │   └── MyName/
+        │   ├── MyName/
+        │   └── SecondEntry/
+        ├── second_source/
         └── symlink_test/ -> source/
     """
     try:
         with TemporaryDirectory(str(TESTS_PATH)):
             STORE_PATH.mkdir(parents=True, exist_ok=True)
             ENTRY_STORE_PATH.mkdir(parents=True, exist_ok=True)
+            STORE_PATH.joinpath(SECOND_ENTRY_NAME).mkdir()
+            SECOND_TARGET_PATH.mkdir()
             SYMLINK_TEST_PATH.symlink_to(TARGET_PATH.resolve())
 
             with open(str(TRANSPOSE_CONFIG_PATH), "w") as f:
