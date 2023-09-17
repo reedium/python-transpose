@@ -152,7 +152,7 @@ class Transpose:
 
         Args:
             name: The name of the entry (must exist)
-            force: If enabled and path already exists, move the path to '{path}-bak'
+            force: If enabled and path already exists, move the path to '{path}.backup' first
 
         Returns:
             None
@@ -182,7 +182,7 @@ class Transpose:
 
         Args:
             name: The name of the entry (must exist)
-            force: If enabled and path already exists, move the path to '{path}-bak'
+            force: If enabled and path already exists, move the path to '{path}.backup' first
 
         Returns:
             None
