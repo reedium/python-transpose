@@ -26,11 +26,13 @@ TRANSPOSE_CONFIG = {
             "name": ENTRY_NAME,
             "path": str(TARGET_PATH),
             "created": "2023-01-21 01:02:03.1234567",
+            "enabled": True,
         },
         SECOND_ENTRY_NAME: {
             "name": SECOND_ENTRY_NAME,
             "path": str(SECOND_TARGET_PATH),
             "created": "2023-02-23 01:02:03.1234567",
+            "enabled": True,
         },
     },
 }

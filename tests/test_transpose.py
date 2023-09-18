@@ -52,10 +52,25 @@ def test_apply():
     assert TARGET_PATH.is_symlink()
     assert ENTRY_STORE_PATH.is_dir()
 
+    # Target is disabled in the config
+    t.config.entries[ENTRY_NAME].enabled = False
+    with pytest.raises(
+        TransposeError, match=f"Entry '{ENTRY_NAME}' is not enabled in the config"
+    ):
+        t.apply(ENTRY_NAME)
+
 
 @setup_restore()
 def test_restore():
     t = Transpose(config_path=TRANSPOSE_CONFIG_PATH)
+
+    # Target is disabled in the config
+    t.config.entries[ENTRY_NAME].enabled = False
+    with pytest.raises(
+        TransposeError, match=f"Entry '{ENTRY_NAME}' is not enabled in the config"
+    ):
+        t.restore(ENTRY_NAME)
+    t.config.entries[ENTRY_NAME].enabled = True
 
     # Success
     t.restore(ENTRY_NAME)
@@ -123,6 +138,28 @@ def test_config_add():
     config.add("NewEntry", TARGET_PATH)
     assert config.entries.get("NewEntry")
     assert config.entries["NewEntry"].path == str(TARGET_PATH)
+
+
+@setup_store()
+def test_config_disable():
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    with pytest.raises(TransposeError, match="'UnknownEntry' does not exist"):
+        config.disable("UnknownEntry")
+
+    config.disable(ENTRY_NAME)
+    assert config.entries[ENTRY_NAME].enabled is False
+
+
+@setup_store()
+def test_config_enable():
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+
+    with pytest.raises(TransposeError, match="'UnknownEntry' does not exist"):
+        config.enable("UnknownEntry")
+
+    config.enable(ENTRY_NAME)
+    assert config.entries[ENTRY_NAME].enabled is True
 
 
 @setup_store()
