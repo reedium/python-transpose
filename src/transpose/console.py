@@ -34,6 +34,12 @@ def run(args, config_path) -> None:
         if args.config_action == "add":
             t.config.add(args.name, args.path)
             t.config.save(config_path)
+        elif args.config_action == "disable":
+            t.config.disable(args.name)
+            t.config.save(config_path)
+        elif args.config_action == "enable":
+            t.config.enable(args.name)
+            t.config.save(config_path)
         elif args.config_action == "get":
             print(t.config.get(args.name))
         elif args.config_action == "list":
@@ -43,7 +49,7 @@ def run(args, config_path) -> None:
             t.config.remove(args.name)
             t.config.save(config_path)
         elif args.config_action == "update":
-            t.config.update(args.name, args.path)
+            t.config.update(args.name, args.field_key, args.field_value)
             t.config.save(config_path)
 
 
@@ -115,7 +121,7 @@ def parse_arguments(args=None):
     apply_all_parser.add_argument(
         "--force",
         dest="force",
-        help="If original path already exists, existing path to <path>.backup and continue",
+        help="Continue with apply even if original path already exists or entry is disabled in config",
         action="store_true",
     )
 
@@ -128,7 +134,12 @@ def parse_arguments(args=None):
         "name",
         help="The name of the stored entity to restore",
     )
-    restore_parser.add_argument("--force", dest="force", action="store_true")
+    restore_parser.add_argument(
+        "--force",
+        dest="force",
+        help="Continue with restore even if original path already exists or entry is disabled in config",
+        action="store_true",
+    )
 
     store_parser = subparsers.add_parser(
         "store",
@@ -169,6 +180,26 @@ def parse_arguments(args=None):
         help="The path of the directory that should be symlinked to the store",
     )
 
+    config_disable_parser = config_subparsers.add_parser(
+        "disable",
+        help="Disable an entry within the config",
+        parents=[base_parser],
+    )
+    config_disable_parser.add_argument(
+        "name",
+        help="The name of the entry the config",
+    )
+
+    config_enable_parser = config_subparsers.add_parser(
+        "enable",
+        help="enable an entry within the config",
+        parents=[base_parser],
+    )
+    config_enable_parser.add_argument(
+        "name",
+        help="The name of the entry the config",
+    )
+
     config_get_parser = config_subparsers.add_parser(
         "get",
         help="Retrieve the settings of a specific entity, such as the path",
@@ -205,8 +236,12 @@ def parse_arguments(args=None):
         help="The name of the entry in the store path",
     )
     config_update_parser.add_argument(
-        "path",
-        help="The path of the directory that should be symlinked to the store",
+        "field_key",
+        help="The config key to be updated",
+    )
+    config_update_parser.add_argument(
+        "field_value",
+        help="The value to updated in the config",
     )
 
     return parser.parse_args(args)

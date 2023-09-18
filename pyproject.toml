@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "transpose"
-version = "2.1.0"
+version = "2.2.0"
 description = "Move and symlink a path to a central location"
 authors = ["Ryan Reed"]
 license = "GPLv3"

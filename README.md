@@ -114,8 +114,11 @@ It's possible to modify the transpose configuration file, `STORE_PATH/transpose.
 ```
 transpose config add "NewEntry" "/path/to/location"
 transpose config get "NewEntry"
+transpose config disable "NewEntry"
+transpose config enable "NewEntry"
 transpose config list
 transpose config remove "NewEntry"
+transpose config update "NewEntry" "path" "/path/to/new/location"
 ```
 
 

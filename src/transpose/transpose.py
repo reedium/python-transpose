@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any
 
 # from typing import Self
 
@@ -16,6 +17,7 @@ class TransposeEntry:
     name: str
     path: str
     created: str  # Should be datetime.datetime but not really necessary here
+    enabled: bool = True
 
 
 @dataclass
@@ -47,6 +49,36 @@ class TransposeConfig:
             created=created,
         )
 
+    def disable(self, name: str) -> None:
+        """
+        Disable an entry by name. This ensures actions are not run against this entry, such as apply and restore
+
+        Args:
+            name: The name of the entry (must exist)
+
+        Returns:
+            None
+        """
+        try:
+            self.entries[name].enabled = False
+        except KeyError:
+            raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
+    def enable(self, name: str) -> None:
+        """
+        Enable an entry by name
+
+        Args:
+            name: The name of the entry (must exist)
+
+        Returns:
+            None
+        """
+        try:
+            self.entries[name].enabled = True
+        except KeyError:
+            raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
     def get(self, name: str) -> TransposeEntry:
         """
         Get an entry by the name
@@ -77,19 +109,20 @@ class TransposeConfig:
         except KeyError:
             raise TransposeError(f"'{name}' does not exist in Transpose config entries")
 
-    def update(self, name: str, path: str) -> None:
+    def update(self, name: str, field_key: str, field_value: Any) -> None:
         """
         Update an entry by name
 
         Args:
             name: The name of the entry (must exist)
-            path: The path where the entry originally exists
+            field_key: The key to update
+            field_value: The value to update
 
         Returns:
             None
         """
         try:
-            self.entries[name].path = path
+            setattr(self.entries[name], field_key, field_value)
         except KeyError:
             raise TransposeError(f"'{name}' does not exist in Transpose config entries")
 
@@ -103,11 +136,14 @@ class TransposeConfig:
         config = TransposeConfig()
         try:
             for name in in_config["entries"]:
+                entry = in_config["entries"][name]
                 config.add(
                     name,
-                    in_config["entries"][name]["path"],
-                    created=in_config["entries"].get("created"),
+                    entry["path"],
+                    created=entry.get("created"),
                 )
+                if "enabled" in entry and not entry["enabled"]:
+                    config.disable(name)
         except (KeyError, TypeError) as e:
             raise TransposeError(f"Unrecognized Transpose config file format: {e}")
 
@@ -160,7 +196,11 @@ class Transpose:
         if not self.config.entries.get(name):
             raise TransposeError(f"Entry does not exist: '{name}'")
 
-        entry_path = Path(self.config.entries[name].path)
+        entry = self.config.entries[name]
+        if hasattr(entry, "enabled") and not entry.enabled and not force:
+            raise TransposeError(f"Entry '{name}' is not enabled in the config")
+
+        entry_path = Path(entry.path)
         if entry_path.exists():
             if force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
@@ -188,7 +228,11 @@ class Transpose:
         if not self.config.entries.get(name):
             raise TransposeError(f"Could not locate entry by name: '{name}'")
 
-        entry_path = Path(self.config.entries[name].path)
+        entry = self.config.entries[name]
+        if hasattr(entry, "enabled") and not entry.enabled and not force:
+            raise TransposeError(f"Entry '{name}' is not enabled in the config")
+
+        entry_path = Path(entry.path)
         if entry_path.exists():
             if force:  # Backup the existing path
                 move(entry_path, entry_path.with_suffix(".backup"))
