@@ -140,9 +140,9 @@ class TransposeConfig:
                 config.add(
                     name,
                     entry["path"],
-                    created=entry.get("created"),
+                    created=entry["created"],
                 )
-                if "enabled" in entry and not entry["enabled"]:
+                if not entry["enabled"]:
                     config.disable(name)
         except (KeyError, TypeError) as e:
             raise TransposeError(f"Unrecognized Transpose config file format: {e}")
@@ -197,7 +197,7 @@ class Transpose:
             raise TransposeError(f"Entry does not exist: '{name}'")
 
         entry = self.config.entries[name]
-        if hasattr(entry, "enabled") and not entry.enabled and not force:
+        if not entry.enabled and not force:
             raise TransposeError(f"Entry '{name}' is not enabled in the config")
 
         entry_path = Path(entry.path)
@@ -229,7 +229,7 @@ class Transpose:
             raise TransposeError(f"Could not locate entry by name: '{name}'")
 
         entry = self.config.entries[name]
-        if hasattr(entry, "enabled") and not entry.enabled and not force:
+        if not entry.enabled and not force:
             raise TransposeError(f"Entry '{name}' is not enabled in the config")
 
         entry_path = Path(entry.path)
