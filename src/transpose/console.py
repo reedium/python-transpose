@@ -43,7 +43,7 @@ def run(args, config_path) -> None:
             t.config.remove(args.name)
             t.config.save(config_path)
         elif args.config_action == "update":
-            t.config.update(args.name, args.path)
+            t.config.update(args.name, args.field_key, args.field_value)
             t.config.save(config_path)
 
 
@@ -205,8 +205,12 @@ def parse_arguments(args=None):
         help="The name of the entry in the store path",
     )
     config_update_parser.add_argument(
-        "path",
-        help="The path of the directory that should be symlinked to the store",
+        "field_key",
+        help="The config key to be updated",
+    )
+    config_update_parser.add_argument(
+        "field_value",
+        help="The value to updated in the config",
     )
 
     return parser.parse_args(args)

@@ -116,6 +116,7 @@ transpose config add "NewEntry" "/path/to/location"
 transpose config get "NewEntry"
 transpose config list
 transpose config remove "NewEntry"
+transpose config update "NewEntry" "path" "/path/to/new/location"
 ```
 
 

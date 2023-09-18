@@ -217,9 +217,10 @@ def test_run_config_remove():
 @setup_restore()
 def test_run_config_update():
     args = RunConfigArgs("update")
-    args.path = "/var/tmp/something"
+    args.field_key = "path"
+    args.field_value = "/var/tmp/something"
 
     run_console(args, TRANSPOSE_CONFIG_PATH)
     config = TransposeConfig().load(TRANSPOSE_CONFIG_PATH)
 
-    assert config.entries[args.name].path == args.path
+    assert config.entries[args.name].path == args.field_value

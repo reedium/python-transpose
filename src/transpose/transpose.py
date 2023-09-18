@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any
 
 # from typing import Self
 
@@ -77,19 +78,20 @@ class TransposeConfig:
         except KeyError:
             raise TransposeError(f"'{name}' does not exist in Transpose config entries")
 
-    def update(self, name: str, path: str) -> None:
+    def update(self, name: str, field_key: str, field_value: Any) -> None:
         """
         Update an entry by name
 
         Args:
             name: The name of the entry (must exist)
-            path: The path where the entry originally exists
+            field_key: The key to update
+            field_value: The value to update
 
         Returns:
             None
         """
         try:
-            self.entries[name].path = path
+            setattr(self.entries[name], field_key, field_value)
         except KeyError:
             raise TransposeError(f"'{name}' does not exist in Transpose config entries")
 

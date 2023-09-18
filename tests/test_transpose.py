@@ -157,9 +157,9 @@ def test_config_update():
     with pytest.raises(
         TransposeError, match="does not exist in Transpose config entries"
     ):
-        config.update("UnknownEntry", "/some/new/path")
+        config.update("UnknownEntry", "path", "/some/new/path")
 
-    config.update(ENTRY_NAME, "/some/new/path")
+    config.update(ENTRY_NAME, "path", "/some/new/path")
     assert config.entries[ENTRY_NAME].path == "/some/new/path"
 
 
