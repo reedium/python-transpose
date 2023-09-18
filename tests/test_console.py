@@ -161,7 +161,6 @@ def test_run_apply_all(capsys):
 
     assert f"\t{ENTRY_NAME:<30}: success" in captured.out
     assert f"\t{SECOND_ENTRY_NAME:<30}: success" in captured.out
-
     assert SECOND_TARGET_PATH.is_symlink()
     assert SECOND_TARGET_PATH.with_suffix(".backup").is_dir()
 

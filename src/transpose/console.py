@@ -21,7 +21,7 @@ def run(args, config_path) -> None:
 
     if args.action == "apply":
         t.apply(args.name, force=args.force)
-    if args.action == "apply-all":
+    elif args.action == "apply-all":
         run_apply_all(t, force=args.force)
     elif args.action == "restore":
         t.restore(args.name, force=args.force)
@@ -51,7 +51,7 @@ def run_apply_all(t: Transpose, force: bool = False) -> None:
     """
     Loop over the entries and recreate the symlinks to the store location
 
-    Useful after restoring the machine
+    Useful after restoring a machine
 
     Args:
         t: An instance of Transpose
@@ -60,19 +60,12 @@ def run_apply_all(t: Transpose, force: bool = False) -> None:
     Returns:
         None
     """
-    results = {}
-    for entry_name in t.config.entries:
+    for entry_name in sorted(t.config.entries):
         try:
             t.apply(entry_name, force)
-            results[entry_name] = {"status": "success", "error": ""}
+            print(f"\t{entry_name:<30}: success")
         except TransposeError as e:
-            results[entry_name] = {"status": "failure", "error": str(e)}
-
-    for name in sorted(results):
-        if results[name]["status"] != "success":
-            print(f"\t{name:<30}: {results[name]['error']}")
-        else:
-            print(f"\t{name:<30}: success")
+            print(f"\t{entry_name:<30}: {e}")
 
 
 def parse_arguments(args=None):
