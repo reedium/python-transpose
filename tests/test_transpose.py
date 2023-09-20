@@ -196,6 +196,9 @@ def test_config_update():
     ):
         config.update("UnknownEntry", "path", "/some/new/path")
 
+    with pytest.raises(TransposeError, match="Unknown TransposeEntry field"):
+        config.update(ENTRY_NAME, "UnknownField", "Some Value")
+
     config.update(ENTRY_NAME, "path", "/some/new/path")
     assert config.entries[ENTRY_NAME].path == "/some/new/path"
 

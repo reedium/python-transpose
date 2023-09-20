@@ -111,7 +111,7 @@ class TransposeConfig:
 
     def update(self, name: str, field_key: str, field_value: Any) -> None:
         """
-        Update an entry by name
+        Update an entry's field (attribute) value
 
         Args:
             name: The name of the entry (must exist)
@@ -122,9 +122,12 @@ class TransposeConfig:
             None
         """
         try:
-            setattr(self.entries[name], field_key, field_value)
+            if not hasattr(self.entries[name], field_key):
+                raise TransposeError(f"Unknown TransposeEntry field: {field_key}")
         except KeyError:
             raise TransposeError(f"'{name}' does not exist in Transpose config entries")
+
+        setattr(self.entries[name], field_key, field_value)
 
     @staticmethod
     def load(config_path: str):  # -> Self:
