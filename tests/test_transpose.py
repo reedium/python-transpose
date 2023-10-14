@@ -217,6 +217,22 @@ def test_config_save():
 
 
 @setup_store()
+def test_config_save_fresh():
+    """
+    Verify creation of transpose config when doesn't initially exist
+    """
+    TRANSPOSE_CONFIG_PATH.unlink()
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+    assert len(config.entries) == 0
+
+    config.add("TestEntry", TARGET_PATH)
+    config.save(TRANSPOSE_CONFIG_PATH)
+
+    config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
+    assert config.entries.get("TestEntry")
+
+
+@setup_store()
 def test_config_load():
     config = TransposeConfig.load(TRANSPOSE_CONFIG_PATH)
 

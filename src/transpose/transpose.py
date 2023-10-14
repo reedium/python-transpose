@@ -135,6 +135,8 @@ class TransposeConfig:
             in_config = json.load(open(config_path, "r"))
         except json.decoder.JSONDecodeError as e:
             raise TransposeError(f"Invalid JSON format for '{config_path}': {e}")
+        except FileNotFoundError:
+            in_config = {"entries": {}}
 
         config = TransposeConfig()
         try:
